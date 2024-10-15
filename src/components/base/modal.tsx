@@ -28,12 +28,12 @@ const Modal = ({
       ? "left-0 top-0"
       : position === "bottom"
       ? "bottom-0 left-0 right-0"
-      : "left-1/2 top-0 transform -translate-x-1/2";
+      : "left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2";
 
   return (
     <div className={`z-[80] w-full h-full fixed top-0 ${bgColor}`}>
       <div
-        className={`absolute ${positionClass} ${width} ${height} ${childBgColor} p-6 max-h-full max-w-screen overflow-y-auto overflow-x-hidden`}
+        className={`absolute ${positionClass} ${width} ${height} ${childBgColor} p-6 overflow-y-auto overflow-x-hidden`}
       >
         {isClosable && (
           <div className="absolute top-5 right-5">

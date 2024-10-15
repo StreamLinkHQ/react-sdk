@@ -3,22 +3,32 @@ import { FaSquarePollHorizontal, FaGift } from "react-icons/fa6";
 import { BiTransfer, BiSolidCustomize } from "react-icons/bi";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { ActionType, StreamAgenda } from "../types";
-import { Tooltip } from "./base";
+import { Tooltip, Loader } from "./base";
 import StreamAgendaItem from "./stream-agenda-item";
+import { baseApi } from "../utils";
+import { useNotification } from "../hooks";
 
 type TimelineProps = {
   actions: StreamAgenda[];
   onActionMove: (id: string, newTimestamp: number) => void;
   currentTime: number;
+  setAgendas: (val: StreamAgenda[]) => void;
 };
 
-const Timeline = ({ actions, onActionMove, currentTime }: TimelineProps) => {
+const Timeline = ({
+  actions,
+  onActionMove,
+  currentTime,
+  setAgendas,
+}: TimelineProps) => {
   const [selectedAction, setSelectedAction] = useState<StreamAgenda | null>(
     null
   );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const timelineRef = useRef<HTMLDivElement>(null);
+  const { addNotification } = useNotification();
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
     e.dataTransfer.setData("text/plain", id);
@@ -43,15 +53,21 @@ const Timeline = ({ actions, onActionMove, currentTime }: TimelineProps) => {
   const getActionIcon = (action: ActionType) => {
     switch (action) {
       case "Poll":
-        return <FaSquarePollHorizontal className="text-blue-500 text-sm lg:text-base" />;
+        return (
+          <FaSquarePollHorizontal className="text-blue-500 text-sm lg:text-base" />
+        );
       case "Transaction":
         return <BiTransfer className="text-green-500 text-sm lg:text-base" />;
       case "Giveaway":
         return <FaGift className="text-purple-500 text-sm lg:text-base" />;
       case "Q&A":
-        return <BsFillPatchQuestionFill className="text-orange-500 text-sm lg:text-base" />;
+        return (
+          <BsFillPatchQuestionFill className="text-orange-500 text-sm lg:text-base" />
+        );
       case "Custom":
-        return <BiSolidCustomize className="text-red-500 text-sm lg:text-base" />;
+        return (
+          <BiSolidCustomize className="text-red-500 text-sm lg:text-base" />
+        );
     }
   };
 
@@ -67,14 +83,83 @@ const Timeline = ({ actions, onActionMove, currentTime }: TimelineProps) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleActionEdit = (id: string) => {
-    console.log(`Editing action with id: ${id}`);
-    // Implement your edit logic here
+  const handleActionEdit = async (updatedAgenda: StreamAgenda) => {
+    const {
+      id,
+      action,
+      details: { item, wallets },
+    } = updatedAgenda;
+
+    const data = {
+      action,
+      details: { item, wallets },
+    };
+
+    try {
+      const response = await fetch(`${baseApi}/agenda/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update the agenda");
+      }
+
+      const responseData = await response.json();
+
+      const updatedAgendas = actions.map((action) =>
+        action.id === id ? responseData : action
+      );
+      setAgendas(updatedAgendas);
+      addNotification({
+        type: "success",
+        message: "Agenda updated successfully!",
+        duration: 3000,
+      });
+    } catch (error) {
+      addNotification({
+        type: "error",
+        message: "There was an error updating the agenda.",
+        duration: 3000,
+      });
+      console.error("Error editing agenda:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleActionDelete = (id: string) => {
-    console.log(`Deleting action with id: ${id}`);
-    // Implement your delete logic here
+  const handleActionDelete = async (agendaId: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseApi}/agenda/${agendaId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      const updatedAgendas = actions.filter((action) => action.id !== agendaId);
+      setAgendas(updatedAgendas);
+      setSelectedAction(null);
+      addNotification({
+        type: "success",
+        message: `${data.message}`,
+        duration: 3000,
+      });
+    } catch (error) {
+      addNotification({
+        type: "error",
+        message: "Error deleting agenda",
+        duration: 3000,
+      });
+      console.error("Error deleting agenda:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -128,9 +213,11 @@ const Timeline = ({ actions, onActionMove, currentTime }: TimelineProps) => {
             handleActionEdit={handleActionEdit}
             toggleDropdown={toggleDropdown}
             isDropdownOpen={isDropdownOpen}
+            currentTime={currentTime}
           />
         )}
       </div>
+      {loading && <Loader closeFunc={setLoading} />}
     </>
   );
 };

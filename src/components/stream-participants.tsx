@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { LuUsers, LuChevronUp, LuChevronDown } from "react-icons/lu";
 import { useClickOutside } from "../hooks/useClickOutside";
-import { Dropdown, Modal } from "./base";
+import { Dropdown } from "./base";
 import { useParticipantList } from "../hooks";
 import { Participant } from "../types";
+import SendModal from "./send-modal";
 
 type StreamParticipantsProps = {
   roomName: string;
@@ -13,11 +15,12 @@ const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
   const { participants, count, isLoading, refetch } = useParticipantList({
     roomName,
   });
-
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { publicKey } = useWallet();
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<Participant | null>(null);
+
   const componentRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(componentRef, () => {
@@ -100,11 +103,13 @@ const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
                 <li key={user.id} className="px-4 py-2 hover:bg-gray-100">
                   <div className="flex justify-between items-center">
                     <span>{user.userName}</span>
-                    <Dropdown
-                      options={getDropdownOptions(user)}
-                      isOpen={openDropdownId === user.id}
-                      toggleDropdown={() => toggleDropdown(user.id)}
-                    />
+                    {publicKey?.toString() !== user.walletAddress && (
+                      <Dropdown
+                        options={getDropdownOptions(user)}
+                        isOpen={openDropdownId === user.id}
+                        toggleDropdown={() => toggleDropdown(user.id)}
+                      />
+                    )}
                   </div>
                 </li>
               ))}
@@ -113,11 +118,7 @@ const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
         )}
       </div>
       {isModalOpen && (
-        <Modal bgColor="bg-modal-black" closeFunc={setIsModalOpen} height="h-[450px]" >
-          <div>
-            {selectedUser?.userName}
-          </div>
-        </Modal>
+       <SendModal selectedUser={selectedUser} closeFunc={setIsModalOpen}/>
       )}
     </>
   );

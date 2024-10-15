@@ -7,11 +7,9 @@ type EditAgendaProps = {
   agenda: StreamAgenda;
   onSubmit: (updatedAgenda: StreamAgenda) => void;
   closeFunc: (val: boolean) => void;
-  selectedTimes: Set<number>;
 };
 
-
-const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaProps) => {
+const EditAgenda = ({ agenda, onSubmit, closeFunc }: EditAgendaProps) => {
   const [agendaState, setAgendaState] = useState<
     Record<ActionType, { item: string; wallets?: string[] }>
   >({
@@ -25,7 +23,6 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
     "Q&A": { item: agenda.details.item || "" },
   });
 
-  console.log({agenda})
   const [actionType, setActionType] = useState<ActionType>(
     agenda.action as ActionType
   );
@@ -33,14 +30,12 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
   const [wallets, setWallets] = useState<string[]>(
     agenda.details.wallets || []
   );
-  const [timeStamp, setTimeStamp] = useState(agenda.timeStamp * 60);
-  const { addNotification } = useNotification()
+  const { addNotification } = useNotification();
 
   useEffect(() => {
     setActionType(agenda.action as ActionType);
     setItem(agenda.details.item || "");
     setWallets(agenda.details.wallets || []);
-    setTimeStamp(agenda.timeStamp);
   }, [agenda]);
 
   const handleAddPollOption = () => {
@@ -63,7 +58,6 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
       Poll: { ...prevState.Poll, wallets: updatedWallets },
     }));
   };
-
 
   const handleActionTypeChange = (newActionType: ActionType) => {
     setAgendaState((prevState) => ({
@@ -91,19 +85,11 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
       });
       return;
     }
-    if (selectedTimes.has(timeStamp*60)) {
-      addNotification({
-        type: "error",
-        message: "This time has already been selected. Please choose a different time.",
-        duration: 3000,
-      });
-      return;
-    }
 
     const updatedAgenda: StreamAgenda = {
       id: agenda.id,
       liveStreamId: agenda.liveStreamId,
-      timeStamp: timeStamp,
+      timeStamp: agenda.timeStamp,
       action: actionType,
       details: {
         agendaId: agenda.details.agendaId,
@@ -141,13 +127,13 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
                   className="input-field w-full p-2 border rounded"
                 />
                 {wallets.length > 2 && (
-                    <button
-                      onClick={() => removePollOption(index)}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      <BsTrash3Fill className="text-red-600" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => removePollOption(index)}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    <BsTrash3Fill className="text-red-600" />
+                  </button>
+                )}
               </div>
             ))}
             <button
@@ -190,11 +176,6 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
     }
   };
 
-  const getSliderBackground = () => {
-    const percentage = ((timeStamp ?? 0)) * 100;
-    return `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${percentage}%, #E5E7EB ${percentage}%, #E5E7EB 100%)`;
-  };
-
   const agendaTypes = ["Poll", "Transaction", "Giveaway", "Custom", "Q&A"];
 
   return (
@@ -218,24 +199,6 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc, selectedTimes }: EditAgendaPr
         </div>
 
         {renderInputFields()}
-
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Select Action Time
-          </label>
-          <input
-            type="range"
-            min={0}
-            max={60}
-            value={timeStamp}
-            onChange={(e) => setTimeStamp(Number(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer"
-            style={{ background: getSliderBackground() }}
-          />
-          <span className="block text-sm text-gray-600 mt-2">
-            {timeStamp} minutes into the call
-          </span>
-        </div>
 
         <div className="mt-6 flex justify-between">
           <button

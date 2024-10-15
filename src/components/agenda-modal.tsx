@@ -80,17 +80,11 @@ const AgendaModal = ({
         actions={agendas}
         onActionMove={handleActionMove}
         currentTime={currentTime}
+        setAgendas={setAgendas}
       />
+      <button className="border">Add Agenda</button>
     </Modal>
   );
 };
 
 export default AgendaModal;
-
-//   const handleActionMove = (id: string, newTimestamp: number) => {
-//     console.log({newTimestamp})
-//     const updatedAgendas = agendas.map((action) =>
-//         action.id === id ? { ...action, timeStamp: newTimestamp } : action
-//       );
-//       setAgendas(updatedAgendas);
-//   };

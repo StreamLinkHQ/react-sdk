@@ -245,7 +245,6 @@ const LiveStreamForm = () => {
       }
 
       const streamData = await response.json();
-      console.log(streamData);
       setShowModal(true)
       setStreamName(streamData.name);
       addNotification({

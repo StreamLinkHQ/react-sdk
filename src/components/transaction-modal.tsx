@@ -49,7 +49,6 @@ const TransactionModal = ({ closeFunc, roomName }: TransactionModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("heyyy");
     await fetchTransaction();
 
     if (transactionBase64) {
