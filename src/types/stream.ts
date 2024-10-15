@@ -21,3 +21,14 @@ export type Participant = {
   walletAddress: string;
   userType: UserType;
 };
+
+export type UnSavedAgendaItem = {
+  time: number;
+  actionType: ActionType;
+  action: string | PollAction;
+};
+
+export type PollAction = {
+  title: string;
+  options: string[];
+};

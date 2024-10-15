@@ -213,7 +213,7 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
           // style={{ height: "100vh" }}
           className="relative h-screen"
         >
-          <StreamParticipants roomName={roomName}/>
+          <StreamParticipants roomName={roomName} />
           <UserView />
           <RoomAudioRenderer />
           <CallControls
@@ -230,10 +230,14 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
           agendas={agendas}
           setAgendas={setAgendas}
           currentTime={currentTime}
+          streamId={roomName}
         />
       )}
       {showTransactionModal && (
-        <TransactionModal closeFunc={setShowTransactionModal} roomName={roomName}/>
+        <TransactionModal
+          closeFunc={setShowTransactionModal}
+          roomName={roomName}
+        />
       )}
     </>
   );

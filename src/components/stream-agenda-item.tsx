@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { StreamAgenda } from "../types";
+import { formatTime } from "../utils";
 import { Dropdown, Modal } from "./base";
 import EditAgenda from "./edit-stream-agenda";
 
@@ -56,6 +57,7 @@ const StreamAgendaItem = ({
           )}
         </div>
         <p>Item: {selectedAction.details.item}</p>
+        <p>Time: {formatTime(selectedAction.timeStamp)}</p>
       </div>
       {isEditingAgenda && (
         <Modal bgColor="bg-modal-black" closeFunc={setIsEditingAgenda}>

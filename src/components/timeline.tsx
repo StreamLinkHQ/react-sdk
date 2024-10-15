@@ -5,7 +5,7 @@ import { BsFillPatchQuestionFill } from "react-icons/bs";
 import { ActionType, StreamAgenda } from "../types";
 import { Tooltip, Loader } from "./base";
 import StreamAgendaItem from "./stream-agenda-item";
-import { baseApi } from "../utils";
+import { baseApi, formatTime } from "../utils";
 import { useNotification } from "../hooks";
 
 type TimelineProps = {
@@ -71,13 +71,7 @@ const Timeline = ({
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
