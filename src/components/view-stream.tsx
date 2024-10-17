@@ -16,6 +16,7 @@ import WalletButton from "./wallet-button";
 import CallControls, { UserView } from "./call-controls";
 import TransactionModal from "./transaction-modal";
 import StreamParticipants from "./stream-participants";
+import ChatModal from "./chat-modal";
 
 type ViewStreamProps = {
   roomName: string;
@@ -38,6 +39,7 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
   const [callType, setCallType] = useState<string>("");
   const [agendas, setAgendas] = useState<StreamAgenda[]>([]);
   const [showAgendaModal, setShowAgendaModal] = useState<boolean>(false);
+  const [showChatModal, setShowChatModal] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState(0);
   const { addNotification, removeNotification, updateNotification } =
     useNotification();
@@ -121,6 +123,13 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
     }
 
     const tokenRes = await response.json();
+    if (!tokenRes) {
+      addNotification({
+        type: "error",
+        message: "Something went wrong, please try again",
+        duration: 3000,
+      });
+    }
     setToken(tokenRes);
   };
 
@@ -204,26 +213,30 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
           <PreJoin onSubmit={generateToken} />
         </>
       ) : (
-        <LiveKitRoom
-          video={callType === "video" ? true : false}
-          audio={true}
-          token={token}
-          serverUrl={serverUrl}
-          data-lk-theme="default"
-          // style={{ height: "100vh" }}
-          className="relative h-screen"
-        >
-          <StreamParticipants roomName={roomName} />
-          <UserView />
-          <RoomAudioRenderer />
-          <CallControls
-            userType={userType}
-            callType={callType}
-            setShowAgendaModal={setShowAgendaModal}
-            setToken={setToken}
-          />
-        </LiveKitRoom>
+          <LiveKitRoom
+            video={callType === "video" ? true : false}
+            audio={true}
+            token={token}
+            serverUrl={serverUrl}
+            data-lk-theme="default"
+            // style={{ height: "100vh" }}
+            className="relative h-screen overflow-x-hidden w-screen"
+          >
+            <StreamParticipants roomName={roomName} />
+            <UserView />
+            <RoomAudioRenderer />
+            <CallControls
+              userType={userType}
+              callType={callType}
+              setShowAgendaModal={setShowAgendaModal}
+              setToken={setToken}
+              roomName={roomName}
+              setShowChatModal={setShowChatModal}
+            />
+            {showChatModal && <ChatModal closeFunc={setShowChatModal} />}
+          </LiveKitRoom>
       )}
+
       {showAgendaModal && (
         <AgendaModal
           closeFunc={setShowAgendaModal}

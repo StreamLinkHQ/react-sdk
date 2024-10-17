@@ -33,3 +33,8 @@ export type PollAction = {
   title: string;
   options: string[];
 };
+
+export type Recipient = {
+  publicKey: string;
+  amount: number;
+}
