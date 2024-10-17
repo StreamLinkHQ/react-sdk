@@ -60,7 +60,13 @@ const StreamAgendaItem = ({
         <p>Time: {formatTime(selectedAction.timeStamp)}</p>
       </div>
       {isEditingAgenda && (
-        <Modal bgColor="bg-modal-black" closeFunc={setIsEditingAgenda}>
+        <Modal
+          bgColor="bg-modal-black"
+          closeFunc={setIsEditingAgenda}
+          position="center"
+          height="h-auto"
+          width="w-[40%]"
+        >
           <EditAgenda
             agenda={selectedAction}
             closeFunc={setIsEditingAgenda}

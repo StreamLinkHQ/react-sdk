@@ -19,6 +19,7 @@ export type Participant = {
   id: string;
   userName: string;
   walletAddress: string;
+  leftAt?: number;
   userType: UserType;
 };
 

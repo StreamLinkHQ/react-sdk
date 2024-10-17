@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { baseApi } from '../utils';
-import { Participant } from '../types';
+import { useState, useEffect, useCallback } from "react";
+import { baseApi } from "../utils";
+import { Participant } from "../types";
 
 interface UseParticipantListProps {
   roomName: string;
@@ -17,7 +17,7 @@ interface UseParticipantListReturn {
 
 export const useParticipantList = ({
   roomName,
-  refreshInterval = 5000
+  refreshInterval = 5000,
 }: UseParticipantListProps): UseParticipantListReturn => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,13 +28,18 @@ export const useParticipantList = ({
       setIsLoading(true);
       const response = await fetch(`${baseApi}/participant/${roomName}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch participants');
+        throw new Error("Failed to fetch participants");
       }
       const data: { participants: Participant[] } = await response.json();
-      setParticipants(data.participants);
+      const activeParticipants = data.participants.filter(
+        (participant) => !participant.leftAt
+      );
+      setParticipants(activeParticipants);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -53,6 +58,6 @@ export const useParticipantList = ({
     count: participants.length,
     isLoading,
     error,
-    refetch: fetchParticipants
+    refetch: fetchParticipants,
   };
 };

@@ -72,7 +72,6 @@ const Timeline = ({
   };
 
 
-
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };

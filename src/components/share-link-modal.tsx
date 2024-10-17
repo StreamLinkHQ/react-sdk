@@ -27,46 +27,41 @@ const ShareModal = ({ closeFunc, streamName }: ShareModalProps) => {
     }
   };
   return (
-    <Modal bgColor="bg-modal-black" closeFunc={closeFunc} childBgColor="bg-[#222]" width="w-1/3" height="h-[50%]" >
-      {/* <div className=" w-[78%] mx-auto rounded-xl p-5 text-black my-28 lg:w-[28%]"> */}
-        <div className="flex flex-row justify-between items-center mb-4">
-          <p className="text-xl text-white font-semibold">Share</p>
-        </div>
-        <div className="flex flex-col">
-          <div className="my-2">
-            <p className="capitalize font-semibold text-sm text-white">
-              for Co-host
-            </p>
-            <div className="bg-[#222] border border-yellow flex flex-row items-center rounded-md mt-3 p-2 justify-between">
-              <p className="text-sm truncate text-white">{`${window.location.hostname}/${streamName}?mode=host`}</p>
-              <TbCopy
-                className="text-white text-3xl font-semibold"
-                onClick={() =>
-                  copyText(
-                    `${window.location.hostname}/${streamName}?mode=host`
-                  )
-                }
-              />
-            </div>
-          </div>
-          <div className="mt-2">
-            <p className="capitalize font-semibold text-sm text-white">
-              for Audience
-            </p>
-            <div className="bg-[#222] border border-yellow flex flex-row items-center rounded-md mt-3 p-2 justify-between">
-              <p className="text-sm truncate text-white">{`${window.location.hostname}/${streamName}?mode=guest`}</p>
-              <TbCopy
-                className="text-white text-3xl font-semibold"
-                onClick={() =>
-                  copyText(
-                    `${window.location.hostname}/${streamName}?mode=guest`
-                  )
-                }
-              />
-            </div>
+    <Modal
+      bgColor="bg-modal-black"
+      closeFunc={closeFunc}
+      width="w-1/3"
+      height="h-[50%]"
+    >
+      <div className="flex flex-row justify-between items-center mb-4">
+        <p className="text-xl font-semibold">Share</p>
+      </div>
+      <div className="flex flex-col">
+        <div className="my-2">
+          <p className="capitalize font-semibold text-sm ">for Co-host</p>
+          <div className="border border-black flex flex-row items-center rounded-md mt-3 p-2 justify-between">
+            <p className="text-sm truncate ">{`${window.location.hostname}/${streamName}?mode=host`}</p>
+            <TbCopy
+              className="text-3xl font-semibold cursor-pointer"
+              onClick={() =>
+                copyText(`${window.location.hostname}/${streamName}?mode=host`)
+              }
+            />
           </div>
         </div>
-      {/* </div> */}
+        <div className="mt-2">
+          <p className="capitalize font-semibold text-sm ">for Audience</p>
+          <div className="border border-black flex flex-row items-center rounded-md mt-3 p-2 justify-between">
+            <p className="text-sm truncate ">{`${window.location.hostname}/${streamName}?mode=guest`}</p>
+            <TbCopy
+              className="text-3xl font-semibold cursor-pointer"
+              onClick={() =>
+                copyText(`${window.location.hostname}/${streamName}?mode=guest`)
+              }
+            />
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 };
