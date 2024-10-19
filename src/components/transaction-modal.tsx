@@ -1,11 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Modal } from "./base";
-import {
-  useParticipantList,
-  useFetchTransaction,
-  useSignAndSubmitTransaction,
-} from "../hooks";
+import { useParticipantList, useTransaction, useNotification } from "../hooks";
 import { Participant } from "../types";
 
 type TransactionModalProps = {
@@ -18,41 +14,105 @@ const TransactionModal = ({ closeFunc, roomName }: TransactionModalProps) => {
   const [sendToAll, setSendToAll] = useState<boolean>(true);
   const [amount, setAmount] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<Participant[]>([]);
+  const [tokenName, setTokenName] = useState<string>("");
   const { participants } = useParticipantList({ roomName });
+  const { addNotification } = useNotification();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isTransactionFetched, setIsTransactionFetched] =
+    useState<boolean>(false);
 
   const recipients = sendToAll
-    ? participants.filter(p => p.walletAddress !== publicKey?.toString()).map((p) => ({
-        publicKey: p.walletAddress,
-        amount: Number(amount),
-      }))
+    ? participants
+        .filter((p) => p.walletAddress !== publicKey?.toString())
+        .map((p) => ({
+          publicKey: p.walletAddress,
+          amount: Number(amount),
+        }))
     : selectedUsers.map((user) => ({
         publicKey: user.walletAddress,
         amount: Number(amount),
       }));
-  const {
-    fetchTransaction,
-    transactionBase64,
-    error: fetchError,
-    loading: fetchLoading,
-  } = useFetchTransaction({ publicKey, recipients });
 
   const {
+    fetchTransaction,
     signAndSubmitTransaction,
-    transactionSignature,
-    error: signError,
-    loading: signLoading,
-  } = useSignAndSubmitTransaction({
     transactionBase64,
+    transactionSignature,
+    error,
+    loading: transactionLoading,
+  } = useTransaction({
     publicKey,
+    recipients,
+    tokenName,
     signTransaction,
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    await fetchTransaction();
+  const handleTokenChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTokenName(event.target.value);
+    setIsTransactionFetched(false); // Reset when token changes
+  };
 
-    if (transactionBase64) {
-      await signAndSubmitTransaction();
+  // Effect to handle transaction signing after fetch
+  useEffect(() => {
+    const handleTransactionSign = async () => {
+      if (transactionBase64 && isTransactionFetched) {
+        try {
+          await signAndSubmitTransaction();
+
+          if (transactionSignature) {
+            addNotification({
+              type: "success",
+              message: "Transaction completed successfully",
+              duration: 3000,
+            });
+            closeFunc(false);
+          }
+        } catch (error) {
+          console.error("Error in signing transaction:", error);
+          addNotification({
+            type: "error",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Failed to sign and submit the transaction",
+            duration: 3000,
+          });
+        } finally {
+          setIsTransactionFetched(false);
+          setLoading(false);
+        }
+      }
+    };
+
+    handleTransactionSign();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactionBase64, isTransactionFetched]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!amount) {
+      addNotification({
+        type: "error",
+        message: "Amount is required",
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await fetchTransaction();
+      setIsTransactionFetched(true);
+    } catch (err) {
+      console.error("Transaction error:", err);
+      addNotification({
+        type: "error",
+        message:
+          err instanceof Error ? err.message : "Failed to fetch transaction",
+        duration: 3000,
+      });
+      setLoading(false);
     }
   };
 
@@ -68,6 +128,7 @@ const TransactionModal = ({ closeFunc, roomName }: TransactionModalProps) => {
       }
     });
   };
+
   return (
     <Modal
       bgColor="bg-modal-black"
@@ -115,7 +176,20 @@ const TransactionModal = ({ closeFunc, roomName }: TransactionModalProps) => {
               ))}
             </div>
           )}
-
+          <div className="space-y-2">
+            <label htmlFor="token" className="block">
+              Token
+            </label>
+            <select
+              className="col-span-3 w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none"
+              value={tokenName}
+              onChange={handleTokenChange}
+            >
+              <option value="">Select token</option>
+              <option value="sol">SOL</option>
+              <option value="usdc">USDC</option>
+            </select>
+          </div>
           <div className="space-y-2">
             <label htmlFor="amount" className="block">
               Amount
@@ -141,30 +215,24 @@ const TransactionModal = ({ closeFunc, roomName }: TransactionModalProps) => {
             </button>
             <button
               type="submit"
-              disabled={fetchLoading || signLoading}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              disabled={loading || transactionLoading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-400"
             >
-              {fetchLoading || signLoading ? "Processing..." : "Send"}
+              {loading || transactionLoading ? "Processing..." : "Send"}
             </button>
           </div>
         </form>
-        {fetchError && (
-          <p className="text-wrap text-sm text-red-600">
-            Error fetching transaction: {fetchError}
-          </p>
-        )}
-        {signError && (
-          <p className="text-wrap text-sm text-red-600">
-            Error signing/submitting transaction: {signError}
-          </p>
+        {error && (
+          <p className="text-wrap text-sm text-red-600">Error: {error}</p>
         )}
         {transactionSignature && (
-          <div className="text-sm text-wrap w-[80%]">
+          <div className="text-sm text-wrap w-[96%] mt-2">
             <p>Transaction Signature:</p>
             <a
               href={`https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`}
               target="_blank"
               rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 break-all"
             >
               {transactionSignature}
             </a>

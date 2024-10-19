@@ -4,8 +4,6 @@ import { Buffer } from "buffer";
 import { baseApi } from "../utils";
 import { Recipient } from "../types";
 
-
-
 interface UseTransactionProps {
   publicKey: PublicKey | null;
   recipients: Recipient[];

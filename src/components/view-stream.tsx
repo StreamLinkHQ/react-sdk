@@ -11,7 +11,12 @@ import { PollToast, CustomToast, ActionToast } from "./toasts";
 import { baseApi } from "../utils";
 import AgendaModal from "./agenda-modal";
 import { useNotification } from "../hooks";
-import { AddNotificationPayload, UserType } from "../types";
+import {
+  AddNotificationPayload,
+  UserType,
+  GenerateTokenParams,
+  ToastComponents,
+} from "../types";
 import WalletButton from "./wallet-button";
 import CallControls, { UserView } from "./call-controls";
 import TransactionModal from "./transaction-modal";
@@ -21,19 +26,22 @@ import ChatModal from "./chat-modal";
 type ViewStreamProps = {
   roomName: string;
   userType: UserType;
-};
-
-type GenerateTokenParamProps = {
-  audioDeviceId: string;
-  audioEnabled: boolean;
-  username: string;
-  videoDeviceId: string;
-  videoEnabled: boolean;
+  toastComponents?: ToastComponents;
+  onTransactionStart?: () => void;
+  onPollStart?: () => void;
+  onCustomAction?: (item: StreamAgenda) => void;
 };
 
 const serverUrl = "wss://streamlink-vtdavgse.livekit.cloud";
 
-const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
+const ViewStream = ({
+  roomName,
+  userType,
+  toastComponents,
+  onTransactionStart,
+  onPollStart,
+  onCustomAction,
+}: ViewStreamProps) => {
   const { publicKey } = useWallet();
   const [token, setToken] = useState<string | undefined>();
   const [callType, setCallType] = useState<string>("");
@@ -92,7 +100,7 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
     fetchData();
   }, [roomName]);
 
-  const generateToken = async (val: GenerateTokenParamProps) => {
+  const generateToken = async (val: GenerateTokenParams) => {
     const { username } = val;
     if (!publicKey) {
       addNotification({
@@ -143,35 +151,70 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
 
       const id = addNotification(notificationPayload);
       const onClose = () => removeNotification(id);
+      const {
+        CustomToast: CustomToastOverride,
+        ActionToast: ActionToastOverride,
+        PollToast: PollToastOverride,
+      } = toastComponents || {};
       const createNotificationContent = (
         onClose: () => void
       ): React.ReactNode => {
         switch (item.action) {
           case "Custom":
           case "Q&A":
-            return <CustomToast item={item} onClose={onClose} />;
+            return CustomToastOverride ? (
+              <CustomToastOverride
+                item={item}
+                onClose={onClose}
+                onStart={() => {
+                  onClose();
+                  onCustomAction?.(item);
+                }}
+              />
+            ) : (
+              <CustomToast item={item} onClose={onClose} />
+            );
           case "Transaction":
           case "Giveaway":
-            return (
+            return ActionToastOverride ? (
+              <ActionToastOverride
+                item={item}
+                onClose={onClose}
+                onAction={() => {
+                  onClose();
+                  onTransactionStart?.();
+                }}
+                userType={userType}
+              />
+            ) : (
               <ActionToast
                 item={item}
                 onClose={onClose}
                 onAction={() => {
                   onClose();
-                  // Logic to handle transactions
                   setShowTransactionModal(true);
                 }}
                 userType={userType}
               />
             );
           case "Poll":
-            return (
+            return PollToastOverride ? (
+              <PollToastOverride
+                item={item}
+                onClose={onClose}
+                onStart={() => {
+                  onClose();
+                  onPollStart?.();
+                }}
+                userType={userType}
+              />
+            ) : (
               <PollToast
                 item={item}
                 onClose={onClose}
                 onStart={() => {
                   onClose();
-                  // Logic to start the poll
+                  // Default poll start logic
                 }}
                 userType={userType}
               />
@@ -191,7 +234,16 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
 
       return id;
     },
-    [addNotification, removeNotification, userType, updateNotification]
+    [
+      addNotification,
+      removeNotification,
+      userType,
+      updateNotification,
+      toastComponents,
+      onTransactionStart,
+      onPollStart,
+      onCustomAction,
+    ]
   );
 
   useEffect(() => {
@@ -204,7 +256,6 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
       }
     });
   }, [currentTime, agendas, executedActions, token, handleAction]);
-
   return (
     <>
       {!token ? (
@@ -213,28 +264,28 @@ const ViewStream = ({ roomName, userType }: ViewStreamProps) => {
           <PreJoin onSubmit={generateToken} />
         </>
       ) : (
-          <LiveKitRoom
-            video={callType === "video" ? true : false}
-            audio={true}
-            token={token}
-            serverUrl={serverUrl}
-            data-lk-theme="default"
-            // style={{ height: "100vh" }}
-            className="relative h-screen overflow-x-hidden w-screen"
-          >
-            <StreamParticipants roomName={roomName} />
-            <UserView />
-            <RoomAudioRenderer />
-            <CallControls
-              userType={userType}
-              callType={callType}
-              setShowAgendaModal={setShowAgendaModal}
-              setToken={setToken}
-              roomName={roomName}
-              setShowChatModal={setShowChatModal}
-            />
-            {showChatModal && <ChatModal closeFunc={setShowChatModal} />}
-          </LiveKitRoom>
+        <LiveKitRoom
+          video={callType === "video" ? true : false}
+          audio={true}
+          token={token}
+          serverUrl={serverUrl}
+          data-lk-theme="default"
+          // style={{ height: "100vh" }}
+          className="relative h-screen overflow-x-hidden w-screen"
+        >
+          <StreamParticipants roomName={roomName} />
+          <UserView />
+          <RoomAudioRenderer />
+          <CallControls
+            userType={userType}
+            callType={callType}
+            setShowAgendaModal={setShowAgendaModal}
+            setToken={setToken}
+            roomName={roomName}
+            setShowChatModal={setShowChatModal}
+          />
+          {showChatModal && <ChatModal closeFunc={setShowChatModal} />}
+        </LiveKitRoom>
       )}
 
       {showAgendaModal && (

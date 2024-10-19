@@ -24,7 +24,7 @@ const ChatModal = ({ closeFunc }: ChatModalProps) => {
         bgColor="bg-modal-black"
         closeFunc={closeFunc}
         position="right"
-        width="w-1/4"
+        width="w-2/3 lg:w-1/4"
       >
         <div>
           {chatMessages.map((chat, i) => (
@@ -34,7 +34,7 @@ const ChatModal = ({ closeFunc }: ChatModalProps) => {
             </div>
           ))}
 
-          <div className="absolute bottom-2 border border-black rounded-full w-[88%] p-2 flex flex-row items-center justify-between">
+          <div className="absolute bottom-2 border border-black rounded-full w-[82%] lg:w-[88%] p-2 flex flex-row items-center justify-between">
             <input
               type="text"
               className="focus:outline-none bg-white w-full"

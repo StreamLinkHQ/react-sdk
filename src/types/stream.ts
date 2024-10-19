@@ -38,3 +38,11 @@ export type Recipient = {
   publicKey: string;
   amount: number;
 }
+
+export type GenerateTokenParams = {
+  audioDeviceId: string;
+  audioEnabled: boolean;
+  username: string;
+  videoDeviceId: string;
+  videoEnabled: boolean;
+};
