@@ -1,17 +1,21 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { LuUsers, LuChevronUp, LuChevronDown } from "react-icons/lu";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { Dropdown } from "./base";
 import { useParticipantList } from "../hooks";
-import { Participant } from "../types";
+import { Participant, UserType, DropdownOption } from "../types";
 import SendModal from "./send-modal";
 
 type StreamParticipantsProps = {
   roomName: string;
+  userType: UserType;
 };
 
-const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
+const StreamParticipants = ({
+  roomName,
+  userType,
+}: StreamParticipantsProps) => {
   const { participants, count, isLoading, refetch } = useParticipantList({
     roomName,
   });
@@ -66,17 +70,46 @@ const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
     handleRefetch();
   };
 
-  const getDropdownOptions = (user: Participant) => [
-    {
-      label: "Send token",
-      action: () => handleAction(user, "token"),
-    },
-    {
-      label: "Send NFT",
-      action: () => handleAction(user, "nft"),
-    },
-  ];
+  const getDropdownOptions = (
+    user: Participant,
+    userType: string
+  ): DropdownOption[] => {
+    const baseOptions: DropdownOption[] = [
+      {
+        label: "Send token",
+        action: () => handleAction(user, "token"),
+      },
+      {
+        label: "Send NFT",
+        action: () => handleAction(user, "nft"),
+      },
+    ];
 
+    const hostOptions: DropdownOption[] =
+      userType === "host"
+        ? [
+            {
+              label: "Make Host",
+              action: () => console.log("heyy"),
+            },
+          ]
+        : [];
+
+    return [...baseOptions, ...hostOptions];
+  };
+
+  const sortedParticipants = useMemo(() => {
+    if (!publicKey) return participants;
+
+    const currentUser = participants.find(
+      (p) => p.walletAddress === publicKey.toString()
+    );
+    const otherParticipants = participants.filter(
+      (p) => p.walletAddress !== publicKey.toString()
+    );
+
+    return currentUser ? [currentUser, ...otherParticipants] : participants;
+  }, [participants, publicKey]);
   return (
     <>
       <div
@@ -99,26 +132,41 @@ const StreamParticipants = ({ roomName }: StreamParticipantsProps) => {
         {isExpanded && participants.length > 0 && (
           <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 text-black lg:h-auto overflow-y-auto">
             <ul className="py-2">
-              {participants.map((user) => (
-                <li key={user.id} className="px-4 py-2 hover:bg-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span>{user.userName}</span>
-                    {publicKey?.toString() !== user.walletAddress && (
-                      <Dropdown
-                        options={getDropdownOptions(user)}
-                        isOpen={openDropdownId === user.id}
-                        toggleDropdown={() => toggleDropdown(user.id)}
-                      />
-                    )}
-                  </div>
-                </li>
-              ))}
+              {sortedParticipants.map((user) => {
+                const isCurrentUser =
+                  user.walletAddress === publicKey?.toString();
+
+                return (
+                  <li
+                    key={user.id}
+                    className="px-4 py-2 hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span>{user.userName}</span>
+                        {isCurrentUser && (
+                          <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                            you
+                          </span>
+                        )}
+                      </div>
+                      {!isCurrentUser && (
+                        <Dropdown
+                          options={getDropdownOptions(user, userType)}
+                          isOpen={openDropdownId === user.id}
+                          toggleDropdown={() => toggleDropdown(user.id)}
+                        />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
       </div>
       {isModalOpen && (
-       <SendModal selectedUser={selectedUser} closeFunc={setIsModalOpen}/>
+        <SendModal selectedUser={selectedUser} closeFunc={setIsModalOpen} />
       )}
     </>
   );

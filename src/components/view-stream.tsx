@@ -273,7 +273,7 @@ const ViewStream = ({
           // style={{ height: "100vh" }}
           className="relative h-screen overflow-x-hidden w-screen"
         >
-          <StreamParticipants roomName={roomName} />
+          <StreamParticipants roomName={roomName} userType={userType}/>
           <UserView />
           <RoomAudioRenderer />
           <CallControls

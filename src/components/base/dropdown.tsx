@@ -1,12 +1,8 @@
 import { useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { DropdownOption } from "../../types";
 
-type DropdownOption = {
-  label: string;
-  action: () => void;
-  icon?: JSX.Element;
-};
 
 type DropdownProps = {
   options: DropdownOption[];

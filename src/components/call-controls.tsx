@@ -7,7 +7,7 @@ import {
 } from "@livekit/components-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
-import { MdCallEnd } from "react-icons/md";
+import { MdCallEnd, MdFrontHand } from "react-icons/md";
 import { BsAppIndicator, BsWechat } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
 import { UserType } from "../types";
@@ -89,13 +89,21 @@ const CallControls = ({
           </Tooltip>
         </div>
       )}
-      <Tooltip content="Addon">
-        {userType === "guest" && (
-          <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
-            <BsAppIndicator />
-          </div>
-        )}
-      </Tooltip>
+
+      {userType === "guest" && (
+        <div className="flex items-center justify-between w-[32%] lg:w-[10%]">
+          <Tooltip content="Addon">
+            <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+              <BsAppIndicator />
+            </div>
+          </Tooltip>
+          <Tooltip content="Raise to speak">
+            <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+              <MdFrontHand />
+            </div>
+          </Tooltip>
+        </div>
+      )}
 
       <DisconnectButton onClick={leaveStream}>
         <MdCallEnd className="text-xl text-white" />
