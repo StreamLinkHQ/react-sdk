@@ -1,27 +1,21 @@
-import { useEffect, useState, useCallback } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useState, useCallback, useEffect } from "react";
 import {
-  LiveKitRoom,
-  RoomAudioRenderer,
-  PreJoin,
-} from "@livekit/components-react";
-import "@livekit/components-styles";
-import { StreamAgenda } from "../types";
+  useSocket,
+  useStreamToken,
+  useStreamData,
+  useStreamAddons,
+  useNotification,
+} from "../hooks";
 import { PollToast, CustomToast, ActionToast } from "./toasts";
-import { baseApi } from "../utils";
-import AgendaModal from "./agenda-modal";
-import { useNotification } from "../hooks";
+import { AgendaModal, TransactionModal, AddOnModal } from "./modals";
+import PreJoinView from "./prejoin-view";
+import StreamView from "./stream-view";
 import {
   AddNotificationPayload,
-  UserType,
-  GenerateTokenParams,
+  StreamAgenda,
   ToastComponents,
+  UserType,
 } from "../types";
-import WalletButton from "./wallet-button";
-import CallControls, { UserView } from "./call-controls";
-import TransactionModal from "./transaction-modal";
-import StreamParticipants from "./stream-participants";
-import ChatModal from "./chat-modal";
 
 type ViewStreamProps = {
   roomName: string;
@@ -32,8 +26,6 @@ type ViewStreamProps = {
   onCustomAction?: (item: StreamAgenda) => void;
 };
 
-const serverUrl = "wss://streamlink-vtdavgse.livekit.cloud";
-
 const ViewStream = ({
   roomName,
   userType,
@@ -42,105 +34,24 @@ const ViewStream = ({
   onPollStart,
   onCustomAction,
 }: ViewStreamProps) => {
-  const { publicKey } = useWallet();
-  const [token, setToken] = useState<string | undefined>();
-  const [callType, setCallType] = useState<string>("");
-  const [agendas, setAgendas] = useState<StreamAgenda[]>([]);
-  const [showAgendaModal, setShowAgendaModal] = useState<boolean>(false);
-  const [showChatModal, setShowChatModal] = useState<boolean>(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const { token, setToken, generateToken } = useStreamToken(roomName, userType);
+  const { agendas, setAgendas, callType } = useStreamData(roomName);
+  const socket = useSocket("http://localhost:8001");
+  const { activeAddons } = useStreamAddons(socket);
+
   const { addNotification, removeNotification, updateNotification } =
     useNotification();
+
+  const [showAgendaModal, setShowAgendaModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showAddonModal, setShowAddonModal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
   const [executedActions, setExecutedActions] = useState<Set<string>>(
     new Set()
   );
-  const [showTransactionModal, setShowTransactionModal] =
-    useState<boolean>(false);
 
-  useEffect(() => {
-    if (!token) return;
-    const interval = setInterval(() => {
-      setCurrentTime((prevTime) => {
-        const newTime = prevTime + 1;
-        return newTime >= 3600 ? 0 : newTime;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [token]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${baseApi}/livestream/${roomName}`, {
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const streamData = await response.json();
-
-        if (Array.isArray(streamData.agenda)) {
-          setAgendas(streamData.agenda);
-        } else {
-          console.error("Invalid data format:", streamData);
-        }
-
-        if (streamData.callType) {
-          setCallType(streamData.callType);
-        } else {
-          console.error("CallType not found in the response:", streamData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-
-    fetchData();
-  }, [roomName]);
-
-  const generateToken = async (val: GenerateTokenParams) => {
-    const { username } = val;
-    if (!publicKey) {
-      addNotification({
-        type: "error",
-        message: "Please, connect your wallet",
-        duration: 3000,
-      });
-      return;
-    }
-    const walletAddress = publicKey.toBase58();
-    const data = {
-      roomName,
-      userType,
-      userName: username,
-      wallet: walletAddress,
-    };
-
-    const response = await fetch(`${baseApi}/livestream/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const tokenRes = await response.json();
-    if (!tokenRes) {
-      addNotification({
-        type: "error",
-        message: "Something went wrong, please try again",
-        duration: 3000,
-      });
-    }
-    setToken(tokenRes);
-  };
-
+  // ... handleAction and other logic remains the same ...
   const handleAction = useCallback(
     (item: StreamAgenda) => {
       const notificationPayload: AddNotificationPayload = {
@@ -156,6 +67,11 @@ const ViewStream = ({
         ActionToast: ActionToastOverride,
         PollToast: PollToastOverride,
       } = toastComponents || {};
+      const startAddon = (type: "Custom" | "Q&A" | "Poll", data?: unknown) => {
+        if (socket && userType === "host") {
+          socket.emit("startAddon", { type, data });
+        }
+      };
       const createNotificationContent = (
         onClose: () => void
       ): React.ReactNode => {
@@ -170,9 +86,18 @@ const ViewStream = ({
                   onClose();
                   onCustomAction?.(item);
                 }}
+                userType={userType}
               />
             ) : (
-              <CustomToast item={item} onClose={onClose} />
+              <CustomToast
+                item={item}
+                onClose={onClose}
+                userType={userType}
+                onStart={() => {
+                  onClose();
+                  // startAddon(item.action, item);
+                }}
+              />
             );
           case "Transaction":
           case "Giveaway":
@@ -215,6 +140,7 @@ const ViewStream = ({
                 onStart={() => {
                   onClose();
                   // Default poll start logic
+                  startAddon("Poll", item);
                 }}
                 userType={userType}
               />
@@ -243,8 +169,20 @@ const ViewStream = ({
       onTransactionStart,
       onPollStart,
       onCustomAction,
+      socket,
     ]
   );
+
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      setCurrentTime((prevTime) => {
+        const newTime = prevTime + 1;
+        return newTime >= 3600 ? 0 : newTime;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -256,37 +194,23 @@ const ViewStream = ({
       }
     });
   }, [currentTime, agendas, executedActions, token, handleAction]);
+
+  if (!token) {
+    return <PreJoinView onSubmit={generateToken} />;
+  }
+
   return (
     <>
-      {!token ? (
-        <>
-          <WalletButton />
-          <PreJoin onSubmit={generateToken} />
-        </>
-      ) : (
-        <LiveKitRoom
-          video={callType === "video" ? true : false}
-          audio={true}
-          token={token}
-          serverUrl={serverUrl}
-          data-lk-theme="default"
-          // style={{ height: "100vh" }}
-          className="relative h-screen overflow-x-hidden w-screen"
-        >
-          <StreamParticipants roomName={roomName} userType={userType}/>
-          <UserView />
-          <RoomAudioRenderer />
-          <CallControls
-            userType={userType}
-            callType={callType}
-            setShowAgendaModal={setShowAgendaModal}
-            setToken={setToken}
-            roomName={roomName}
-            setShowChatModal={setShowChatModal}
-          />
-          {showChatModal && <ChatModal closeFunc={setShowChatModal} />}
-        </LiveKitRoom>
-      )}
+      <StreamView
+        token={token}
+        callType={callType}
+        userType={userType}
+        roomName={roomName}
+        onShowAgenda={() => setShowAgendaModal(true)}
+        onTokenChange={setToken}
+        showChatModal={showChatModal}
+        onShowChat={setShowChatModal}
+      />
 
       {showAgendaModal && (
         <AgendaModal
@@ -302,6 +226,9 @@ const ViewStream = ({
           closeFunc={setShowTransactionModal}
           roomName={roomName}
         />
+      )}
+      {showAddonModal && (
+        <AddOnModal closeFunc={setShowAddonModal} activeAddons={activeAddons} />
       )}
     </>
   );

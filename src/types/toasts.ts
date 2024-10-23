@@ -9,6 +9,7 @@ interface BaseToastProps {
 
 export interface CustomToastProps extends BaseToastProps {
   onStart?: () => void;
+  userType: UserType;
 }
 
 export interface ActionToastProps extends BaseToastProps {

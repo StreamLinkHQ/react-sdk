@@ -1,6 +1,6 @@
 import { TbCopy } from "react-icons/tb";
-import { Modal } from "./base";
-import { useNotification } from "../hooks";
+import { Modal } from "../base";
+import { useNotification } from "../../hooks";
 
 type ShareModalProps = {
   closeFunc: (val: boolean) => void;

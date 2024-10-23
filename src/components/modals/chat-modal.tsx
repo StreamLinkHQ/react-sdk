@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useChat } from "@livekit/components-react";
 import { TbSend2 } from "react-icons/tb";
-import { Modal } from "./base";
+import { Modal } from "../base";
 
 type ChatModalProps = {
   closeFunc: (val: boolean) => void;

@@ -58,52 +58,57 @@ const CallControls = ({
   };
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
-      {userType === "host" && (
-        <div className="flex items-center justify-between w-[80%] lg:w-[28%]">
-          <Tooltip content="Agendas">
-            <div
-              className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
-              onClick={() => setShowAgendaModal(true)}
-            >
-              <TfiAgenda />
-            </div>
-          </Tooltip>
-          <Tooltip content="Mic">
-            <TrackToggle source={Track.Source.Microphone} />
-          </Tooltip>
-          <Tooltip content="Screen">
-            <TrackToggle source={Track.Source.ScreenShare} />
-          </Tooltip>
-          <Tooltip content="Video">
-            {callType === "video" && (
-              <TrackToggle source={Track.Source.Camera} />
-            )}
-          </Tooltip>
-          <Tooltip content="Chat">
-            <div
-              className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
-              onClick={() => setShowChatModal(true)}
-            >
-              <BsWechat />
-            </div>
-          </Tooltip>
-        </div>
-      )}
-
-      {userType === "guest" && (
-        <div className="flex items-center justify-between w-[32%] lg:w-[10%]">
-          <Tooltip content="Addon">
-            <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
-              <BsAppIndicator />
-            </div>
-          </Tooltip>
-          <Tooltip content="Raise to speak">
-            <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
-              <MdFrontHand />
-            </div>
-          </Tooltip>
-        </div>
-      )}
+      <div
+        className={`flex items-center justify-between ${
+          userType === "host" ? "w-[80%] lg:w-[28%]" : "w-[50%] lg:w-[18%]"
+        }`}
+      >
+        {userType === "host" && (
+          <>
+            <Tooltip content="Agendas">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                onClick={() => setShowAgendaModal(true)}
+              >
+                <TfiAgenda />
+              </div>
+            </Tooltip>
+            <Tooltip content="Mic">
+              <TrackToggle source={Track.Source.Microphone} />
+            </Tooltip>
+            <Tooltip content="Screen">
+              <TrackToggle source={Track.Source.ScreenShare} />
+            </Tooltip>
+            <Tooltip content="Video">
+              {callType === "video" && (
+                <TrackToggle source={Track.Source.Camera} />
+              )}
+            </Tooltip>
+          </>
+        )}
+        {userType === "guest" && (
+          <>
+            <Tooltip content="Addon">
+              <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+                <BsAppIndicator />
+              </div>
+            </Tooltip>
+            <Tooltip content="Raise to speak">
+              <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+                <MdFrontHand />
+              </div>
+            </Tooltip>
+          </>
+        )}
+        <Tooltip content="Chat">
+          <div
+            className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+            onClick={() => setShowChatModal(true)}
+          >
+            <BsWechat />
+          </div>
+        </Tooltip>
+      </div>
 
       <DisconnectButton onClick={leaveStream}>
         <MdCallEnd className="text-xl text-white" />

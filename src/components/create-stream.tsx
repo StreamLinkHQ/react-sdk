@@ -3,11 +3,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { baseApi } from "../utils";
 import { UnSavedAgendaItem, PollAction } from "../types";
 import { useNotification } from "../hooks";
-import ShareModal from "./share-link-modal";
+import { ShareModal } from "./modals";
 import { Loader } from "./base";
 import AgendaForm from "./agenda-form";
 
-const LiveStreamForm = () => {
+const CreateStreamForm = () => {
   const { publicKey } = useWallet();
   const { addNotification } = useNotification();
   const [selectedDate, setSelectedDate] = useState<string>();
@@ -195,4 +195,4 @@ const LiveStreamForm = () => {
   );
 };
 
-export default LiveStreamForm;
+export default CreateStreamForm;

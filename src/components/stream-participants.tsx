@@ -5,7 +5,7 @@ import { useClickOutside } from "../hooks/useClickOutside";
 import { Dropdown } from "./base";
 import { useParticipantList } from "../hooks";
 import { Participant, UserType, DropdownOption } from "../types";
-import SendModal from "./send-modal";
+import { SendModal } from "./modals";
 
 type StreamParticipantsProps = {
   roomName: string;

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Modal } from "./base";
-import { useParticipantList, useTransaction, useNotification } from "../hooks";
-import { Participant } from "../types";
+import { Modal } from "../base";
+import { useParticipantList, useTransaction, useNotification } from "../../hooks";
+import { Participant } from "../../types";
 
 type TransactionModalProps = {
   closeFunc: (val: boolean) => void;

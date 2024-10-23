@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Modal, Loader } from "./base";
-import Timeline from "./timeline";
-import { StreamAgenda, UnSavedAgendaItem, PollAction } from "../types";
-import { baseApi } from "../utils";
-import { useNotification } from "../hooks";
-import AgendaForm from "./agenda-form";
+import { Modal, Loader } from "../base";
+import Timeline from "../timeline";
+import { StreamAgenda, UnSavedAgendaItem, PollAction } from "../../types";
+import { baseApi } from "../../utils";
+import { useNotification } from "../../hooks";
+import AgendaForm from "../agenda-form";
 
 type AgendaModalProps = {
   closeFunc: (val: boolean) => void;

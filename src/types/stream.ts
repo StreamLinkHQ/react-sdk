@@ -46,3 +46,34 @@ export type GenerateTokenParams = {
   videoDeviceId: string;
   videoEnabled: boolean;
 };
+
+type PollData = {
+  title: string;
+  // Add other poll-specific fields
+};
+
+type QAData = {
+  title: string;
+  // Add other Q&A-specific fields
+};
+
+type CustomData = {
+  title: string;
+  // Add other custom-specific fields
+};
+
+export type AddonState = {
+  type: "Custom";
+  isActive: boolean;
+  data?: CustomData;
+} | {
+  type: "Q&A";
+  isActive: boolean;
+  data?: QAData;
+} | {
+  type: "Poll";
+  isActive: boolean;
+  data?: PollData;
+};
+
+export type ActiveAddons = Record<string, AddonState>;

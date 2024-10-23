@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Modal } from "./base";
-import { Participant } from "../types";
-import { useTransaction, useNotification } from "../hooks";
+import { Modal } from "../base";
+import { Participant } from "../../types";
+import { useTransaction, useNotification } from "../../hooks";
 
 type SendModalProps = {
   selectedUser: Participant | null;
