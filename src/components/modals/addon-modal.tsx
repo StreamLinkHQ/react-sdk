@@ -1,5 +1,6 @@
 import { ActiveAddons } from "../../types";
 import { Modal } from "../base";
+import { PollContent } from "../guest-view";
 
 type AddOnModalProps = {
   closeFunc: (val: boolean) => void;
@@ -8,34 +9,47 @@ type AddOnModalProps = {
 
 const AddOnModal = ({ closeFunc, activeAddons }: AddOnModalProps) => {
   const renderAddonContent = () => {
-    return Object.entries(activeAddons).map(([type, state]) => {
-      if (!state.isActive) return <p>There are no active addons</p>;
+    const activeAddonElements = Object.entries(activeAddons).map(
+      ([type, state]) => {
+        if (!state.isActive) return null;
 
-      return (
-        <div
-          key={type}
-          className="absolute bottom-20 right-4 z-50 bg-white rounded-lg shadow-lg p-4"
-        >
-          <h3 className="font-bold mb-2">{type}</h3>
-          {type === "Poll" && state.data && (
-            <div>
-              <h4>{state.data.title}</h4>
-              {/* Add your poll UI here */}
-            </div>
-          )}
-          {type === "Q&A" && <div>{/* Add your Q&A UI here */}</div>}
-          {type === "Custom" && state.data && (
-            <div>
-              <h4>{state.data.title}</h4>
-              {/* Add your custom action UI here */}
-            </div>
-          )}
-        </div>
-      );
-    });
+        return (
+          <div key={type}>
+            <h3>{type}</h3>
+            {type === "Poll" && state.data?.details && (
+              <PollContent details={state.data.details} />
+            )}
+            {type === "Q&A" && <div>{/* Add your Q&A UI here */}</div>}
+            {type === "Custom" && state.data && (
+              <div>
+                <p>{state.data.title}</p>
+                {/* Add your custom action UI here */}
+              </div>
+            )}
+          </div>
+        );
+      }
+    );
+
+    const filteredAddons = activeAddonElements.filter(
+      (element) => element !== null
+    );
+
+    return filteredAddons.length > 0 ? (
+      filteredAddons
+    ) : (
+      <div>There are no addons currently</div>
+    );
   };
+
   return (
-    <Modal closeFunc={closeFunc} bgColor="bg-modal-black">
+    <Modal
+      closeFunc={closeFunc}
+      bgColor="bg-modal-black"
+      position="bottom"
+      width="w-full"
+      height="h-1/3"
+    >
       <div>{renderAddonContent()}</div>
     </Modal>
   );

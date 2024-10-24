@@ -2,14 +2,16 @@ export type ActionType = "Poll" | "Transaction" | "Giveaway" | "Q&A" | "Custom";
 
 export type UserType = "host" | "guest"
 
+export type AgendaDetails = {
+  agendaId: string;
+  id: number;
+  item: string;
+  wallets: string[];
+}
+
 export type StreamAgenda = {
   action: ActionType;
-  details: {
-    agendaId: string;
-    id: number;
-    item: string;
-    wallets: string[];
-  };
+  details: AgendaDetails;
   id: string;
   liveStreamId: string;
   timeStamp: number;
@@ -49,16 +51,20 @@ export type GenerateTokenParams = {
 
 type PollData = {
   title: string;
+  details: AgendaDetails;
   // Add other poll-specific fields
+
 };
 
 type QAData = {
   title: string;
+  details: AgendaDetails;
   // Add other Q&A-specific fields
 };
 
 type CustomData = {
   title: string;
+  details: AgendaDetails;
   // Add other custom-specific fields
 };
 

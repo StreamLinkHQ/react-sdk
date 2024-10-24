@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { useChat } from "@livekit/components-react";
+import { useChat, ReceivedChatMessage } from "@livekit/components-react";
 import { TbSend2 } from "react-icons/tb";
 import { Modal } from "../base";
 
 type ChatModalProps = {
   closeFunc: (val: boolean) => void;
+  chatMessages: ReceivedChatMessage[];
 };
 
-const ChatModal = ({ closeFunc }: ChatModalProps) => {
-  const { send, chatMessages } = useChat();
+const ChatModal = ({ closeFunc, chatMessages }: ChatModalProps) => {
+  const { send } = useChat();
   const [message, setMessage] = useState<string>("");
 
   const sendMessage = () => {

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { LiveKitRoom } from "@livekit/components-react";
 import {
   useSocket,
   useStreamToken,
@@ -51,7 +52,6 @@ const ViewStream = ({
     new Set()
   );
 
-  // ... handleAction and other logic remains the same ...
   const handleAction = useCallback(
     (item: StreamAgenda) => {
       const notificationPayload: AddNotificationPayload = {
@@ -201,16 +201,25 @@ const ViewStream = ({
 
   return (
     <>
-      <StreamView
+      <LiveKitRoom
+        video={callType === "video"}
+        audio={true}
         token={token}
-        callType={callType}
-        userType={userType}
-        roomName={roomName}
-        onShowAgenda={() => setShowAgendaModal(true)}
-        onTokenChange={setToken}
-        showChatModal={showChatModal}
-        onShowChat={setShowChatModal}
-      />
+        serverUrl="wss://streamlink-vtdavgse.livekit.cloud"
+        data-lk-theme="default"
+        className="relative h-screen overflow-x-hidden w-screen"
+      >
+        <StreamView
+          callType={callType}
+          userType={userType}
+          roomName={roomName}
+          onShowAgenda={() => setShowAgendaModal(true)}
+          onTokenChange={setToken}
+          showChatModal={showChatModal}
+          onShowChat={setShowChatModal}
+          onShowAddonModal={() => setShowAddonModal(true)}
+        />
+      </LiveKitRoom>
 
       {showAgendaModal && (
         <AgendaModal

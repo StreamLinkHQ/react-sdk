@@ -20,6 +20,7 @@ type CallControlsProps = {
   roomName: string;
   setShowAgendaModal: (val: boolean) => void;
   setShowChatModal: (val: boolean) => void;
+  setShowAddonModal: (val: boolean) => void;
   setToken: (val: string | undefined) => void;
 };
 
@@ -29,6 +30,7 @@ const CallControls = ({
   setShowAgendaModal,
   setToken,
   setShowChatModal,
+  setShowAddonModal,
   roomName,
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
@@ -89,7 +91,10 @@ const CallControls = ({
         {userType === "guest" && (
           <>
             <Tooltip content="Addon">
-              <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                onClick={() => setShowAddonModal(true)}
+              >
                 <BsAppIndicator />
               </div>
             </Tooltip>
