@@ -16,7 +16,9 @@ import {
   StreamAgenda,
   ToastComponents,
   UserType,
+  GuestRequest,
 } from "../types";
+import RequestCard from "./request-card";
 
 type ViewStreamProps = {
   roomName: string;
@@ -51,6 +53,22 @@ const ViewStream = ({
   const [executedActions, setExecutedActions] = useState<Set<string>>(
     new Set()
   );
+  const [guestRequests, setGuestRequests] = useState<GuestRequest[]>([]);
+
+  console.log({ guestRequests });
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("guestRequestsUpdate", (requests) => {
+        setGuestRequests(requests);
+      });
+
+      // Clean up the listener when component unmounts or socket changes
+      return () => {
+        socket.off("guestRequestsUpdate");
+      };
+    }
+  }, [socket]); // Add socket as a dependency to re-run the effect when it updates
 
   const handleAction = useCallback(
     (item: StreamAgenda) => {
@@ -239,6 +257,11 @@ const ViewStream = ({
       {showAddonModal && (
         <AddOnModal closeFunc={setShowAddonModal} activeAddons={activeAddons} />
       )}
+      <div className="absolute right-10 top-20">
+        {guestRequests.map((request, i) => (
+          <RequestCard request={request} userType={userType} roomName={roomName} key={i}/>
+        ))}
+      </div>
     </>
   );
 };

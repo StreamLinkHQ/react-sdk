@@ -1,4 +1,9 @@
-import { RoomAudioRenderer, useChat } from "@livekit/components-react";
+import {
+  RoomAudioRenderer,
+  useChat,
+  ParticipantContext,
+  useLocalParticipant
+} from "@livekit/components-react";
 import StreamParticipants from "./stream-participants";
 import CallControls, { UserView } from "./call-controls";
 import { ChatModal } from "./modals";
@@ -26,9 +31,10 @@ const StreamView = ({
   onShowAddonModal,
 }: StreamViewProps) => {
   const { chatMessages } = useChat();
+  const p = useLocalParticipant();
 
   return (
-    <>
+    <ParticipantContext.Provider value={p.localParticipant}>
       <StreamParticipants roomName={roomName} userType={userType} />
       <UserView />
       <RoomAudioRenderer />
@@ -44,7 +50,7 @@ const StreamView = ({
       {showChatModal && (
         <ChatModal closeFunc={onShowChat} chatMessages={chatMessages} />
       )}
-    </>
+    </ParticipantContext.Provider>
   );
 };
 

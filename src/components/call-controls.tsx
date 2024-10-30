@@ -1,18 +1,21 @@
+import { useEffect, useState } from "react";
 import {
   TrackToggle,
   DisconnectButton,
+  useLocalParticipant,
+  useTracks,
   GridLayout,
   ParticipantTile,
-  useTracks,
 } from "@livekit/components-react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { Track } from "livekit-client";
 import { MdCallEnd, MdFrontHand } from "react-icons/md";
 import { BsAppIndicator, BsWechat } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Track } from "livekit-client";
 import { UserType } from "../types";
 import { baseApi } from "../utils";
 import { Tooltip } from "./base";
+import { useSocket } from "../hooks";
 
 type CallControlsProps = {
   userType: UserType;
@@ -34,6 +37,24 @@ const CallControls = ({
   roomName,
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
+  const [isInvited, setIsInvited] = useState(false); // State to track invitation status
+  const socket = useSocket("http://localhost:8001");
+  const p = useLocalParticipant();
+
+  // Listen for "inviteGuest" event to enable controls for invited guests
+  useEffect(() => {
+    if (socket) {
+      socket.on("inviteGuest", (data: { participantId: string }) => {
+        if (data.participantId === p.localParticipant?.identity) {
+          setIsInvited(true);
+        }
+      });
+
+      return () => {
+        socket.off("inviteGuest");
+      };
+    }
+  }, [socket, p.localParticipant?.identity]);
 
   const leaveStream = async () => {
     setToken(undefined);
@@ -58,11 +79,23 @@ const CallControls = ({
       console.error(error);
     }
   };
+
+  const request = () => {
+    if (socket) {
+      socket.emit("requestToSpeak", {
+        participantId: p.localParticipant?.identity,
+        name: p.localParticipant?.identity,
+      });
+    } else {
+      console.warn("Socket not initialized yet");
+    }
+  };
+
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
       <div
         className={`flex items-center justify-between ${
-          userType === "host" ? "w-[80%] lg:w-[28%]" : "w-[50%] lg:w-[18%]"
+          userType === "host" ? "w-[80%] lg:w-[28%]" : isInvited ? "w-[80%] lg:w-[28%]" : "w-[50%] lg:w-[18%]"
         }`}
       >
         {userType === "host" && (
@@ -99,10 +132,25 @@ const CallControls = ({
               </div>
             </Tooltip>
             <Tooltip content="Raise to speak">
-              <div className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                onClick={request}
+              >
                 <MdFrontHand />
               </div>
             </Tooltip>
+            {isInvited && (
+              <>
+                <Tooltip content="Mic">
+                  <TrackToggle source={Track.Source.Microphone} />
+                </Tooltip>
+                <Tooltip content="Video">
+                  {callType === "video" && (
+                    <TrackToggle source={Track.Source.Camera} />
+                  )}
+                </Tooltip>
+              </>
+            )}
           </>
         )}
         <Tooltip content="Chat">
@@ -123,6 +171,7 @@ const CallControls = ({
 };
 
 export default CallControls;
+
 
 export function UserView() {
   const tracks = useTracks(

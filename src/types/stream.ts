@@ -83,3 +83,8 @@ export type AddonState = {
 };
 
 export type ActiveAddons = Record<string, AddonState>;
+
+export type GuestRequest = {
+  participantId: string;
+  name:string
+}
