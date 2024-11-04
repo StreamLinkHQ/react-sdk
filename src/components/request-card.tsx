@@ -1,5 +1,6 @@
 import { GuestRequest, UserType } from "../types";
 import { baseApi } from "../utils";
+import { useNotification } from "../hooks";
 
 type RequestCardProps = {
   userType: UserType;
@@ -8,6 +9,7 @@ type RequestCardProps = {
 };
 
 const RequestCard = ({ userType, request, roomName }: RequestCardProps) => {
+  const { addNotification } = useNotification();
   const inviteGuest = async (participantId: string) => {
     try {
       const response = await fetch(`${baseApi}/livestream/invite`, {
@@ -20,8 +22,17 @@ const RequestCard = ({ userType, request, roomName }: RequestCardProps) => {
 
       if (!response.ok) {
         console.error("Failed to invite guest:", await response.text());
+        addNotification({
+          type: "error",
+          message: "Failed to invite guest",
+          duration: 3000,
+        });
       } else {
-        console.log("Guest invited successfully!");
+        addNotification({
+          type: "success",
+          message: "Guest invited successfully!",
+          duration: 3000,
+        });
       }
     } catch (error) {
       console.error("Error inviting guest:", error);

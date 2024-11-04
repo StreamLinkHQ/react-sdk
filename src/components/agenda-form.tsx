@@ -41,7 +41,6 @@ const AgendaForm = ({
     });
   };
 
-  console.log({selectedTimes})
   const handleRemovePollOption = (index: number) => {
     if (pollOptions.length > 2) {
       const newOptions = pollOptions.filter((_, i) => i !== index);

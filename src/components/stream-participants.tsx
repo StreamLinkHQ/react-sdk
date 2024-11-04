@@ -3,9 +3,10 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { LuUsers, LuChevronUp, LuChevronDown } from "react-icons/lu";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { Dropdown } from "./base";
-import { useParticipantList } from "../hooks";
+import { useParticipantList, useNotification } from "../hooks";
 import { Participant, UserType, DropdownOption } from "../types";
 import { SendModal } from "./modals";
+import { baseApi } from "../utils";
 
 type StreamParticipantsProps = {
   roomName: string;
@@ -26,6 +27,7 @@ const StreamParticipants = ({
   const [selectedUser, setSelectedUser] = useState<Participant | null>(null);
 
   const componentRef = useRef<HTMLDivElement>(null);
+  const { addNotification } = useNotification();
 
   useClickOutside(componentRef, () => {
     if (isExpanded) {
@@ -69,6 +71,34 @@ const StreamParticipants = ({
     }
     handleRefetch();
   };
+  const makeHost = async (participantId: string) => {
+    try {
+      const response = await fetch(`${baseApi}/livestream/invite`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ participantId, roomName }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to invite guest:", await response.text());
+        addNotification({
+          type: "error",
+          message: "Failed to invite guest",
+          duration: 3000,
+        });
+      } else {
+        addNotification({
+          type: "success",
+          message: "User made host successfully!",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error inviting guest:", error);
+    }
+  };
 
   const getDropdownOptions = (
     user: Participant,
@@ -79,10 +109,6 @@ const StreamParticipants = ({
         label: "Send token",
         action: () => handleAction(user, "token"),
       },
-      {
-        label: "Send NFT",
-        action: () => handleAction(user, "nft"),
-      },
     ];
 
     const hostOptions: DropdownOption[] =
@@ -90,7 +116,7 @@ const StreamParticipants = ({
         ? [
             {
               label: "Make Host",
-              action: () => console.log("heyy"),
+              action: () => makeHost(user.userName),
             },
           ]
         : [];

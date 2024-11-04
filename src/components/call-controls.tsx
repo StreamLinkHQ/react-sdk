@@ -14,8 +14,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
 import { GuestRequest, UserType } from "../types";
 import { baseApi } from "../utils";
+import { useNotification, useSocket } from "../hooks";
 import { Tooltip } from "./base";
-import { useSocket } from "../hooks";
 
 type CallControlsProps = {
   userType: UserType;
@@ -41,6 +41,7 @@ const CallControls = ({
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState(false);
   const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const { addNotification } = useNotification();
   const socket = useSocket("http://localhost:8001");
   const p = useLocalParticipant();
 
@@ -54,6 +55,11 @@ const CallControls = ({
           if (data.participantId === p.localParticipant?.identity) {
             setIsInvited(true);
             setHasPendingRequest(false);
+            addNotification({
+              type: "success",
+              message: "You have been invited!",
+              duration: 3000,
+            });
           }
         }
       );
@@ -72,7 +78,13 @@ const CallControls = ({
         socket.off("guestRequestsUpdate");
       };
     }
-  }, [socket, p.localParticipant?.identity, roomName, setGuestRequests]);
+  }, [
+    socket,
+    p.localParticipant?.identity,
+    roomName,
+    setGuestRequests,
+    addNotification,
+  ]);
 
   const request = () => {
     if (socket) {
@@ -155,7 +167,7 @@ const CallControls = ({
                 <BsAppIndicator />
               </div>
             </Tooltip>
-            {(!hasPendingRequest && !isInvited) && (
+            {!hasPendingRequest && !isInvited && (
               <Tooltip content="Raise to speak">
                 <div
                   className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
