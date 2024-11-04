@@ -7,7 +7,7 @@ import {
 import StreamParticipants from "./stream-participants";
 import CallControls, { UserView } from "./call-controls";
 import { ChatModal } from "./modals";
-import { UserType } from "../types";
+import { GuestRequest, UserType } from "../types";
 
 type StreamViewProps = {
   callType: string;
@@ -18,6 +18,7 @@ type StreamViewProps = {
   onTokenChange: (token: string | undefined) => void;
   showChatModal: boolean;
   onShowChat: (show: boolean) => void;
+  setGuestRequests: (val: GuestRequest[]) => void;
 };
 
 const StreamView = ({
@@ -29,10 +30,11 @@ const StreamView = ({
   showChatModal,
   onShowChat,
   onShowAddonModal,
+  setGuestRequests
 }: StreamViewProps) => {
   const { chatMessages } = useChat();
   const p = useLocalParticipant();
-
+ 
   return (
     <ParticipantContext.Provider value={p.localParticipant}>
       <StreamParticipants roomName={roomName} userType={userType} />
@@ -46,6 +48,7 @@ const StreamView = ({
         roomName={roomName}
         setShowChatModal={onShowChat}
         setShowAddonModal={onShowAddonModal}
+        setGuestRequests={setGuestRequests}
       />
       {showChatModal && (
         <ChatModal closeFunc={onShowChat} chatMessages={chatMessages} />

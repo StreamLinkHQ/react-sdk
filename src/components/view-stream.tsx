@@ -55,20 +55,9 @@ const ViewStream = ({
   );
   const [guestRequests, setGuestRequests] = useState<GuestRequest[]>([]);
 
-  console.log({ guestRequests });
-
-  useEffect(() => {
-    if (socket) {
-      socket.on("guestRequestsUpdate", (requests) => {
-        setGuestRequests(requests);
-      });
-
-      // Clean up the listener when component unmounts or socket changes
-      return () => {
-        socket.off("guestRequestsUpdate");
-      };
-    }
-  }, [socket]); // Add socket as a dependency to re-run the effect when it updates
+  const handleGuestRequests = useCallback((newRequests: GuestRequest[]) => {
+    setGuestRequests(newRequests);
+  }, []);
 
   const handleAction = useCallback(
     (item: StreamAgenda) => {
@@ -236,6 +225,7 @@ const ViewStream = ({
           showChatModal={showChatModal}
           onShowChat={setShowChatModal}
           onShowAddonModal={() => setShowAddonModal(true)}
+          setGuestRequests={handleGuestRequests}
         />
       </LiveKitRoom>
 

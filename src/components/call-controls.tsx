@@ -12,7 +12,7 @@ import { BsAppIndicator, BsWechat } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
-import { UserType } from "../types";
+import { GuestRequest, UserType } from "../types";
 import { baseApi } from "../utils";
 import { Tooltip } from "./base";
 import { useSocket } from "../hooks";
@@ -21,6 +21,7 @@ type CallControlsProps = {
   userType: UserType;
   callType: string;
   roomName: string;
+  setGuestRequests: (val: GuestRequest[]) => void;
   setShowAgendaModal: (val: boolean) => void;
   setShowChatModal: (val: boolean) => void;
   setShowAddonModal: (val: boolean) => void;
@@ -35,26 +36,56 @@ const CallControls = ({
   setShowChatModal,
   setShowAddonModal,
   roomName,
+  setGuestRequests,
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
-  const [isInvited, setIsInvited] = useState(false); // State to track invitation status
+  const [isInvited, setIsInvited] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const socket = useSocket("http://localhost:8001");
   const p = useLocalParticipant();
 
-  // Listen for "inviteGuest" event to enable controls for invited guests
   useEffect(() => {
-    if (socket) {
-      socket.on("inviteGuest", (data: { participantId: string }) => {
-        if (data.participantId === p.localParticipant?.identity) {
-          setIsInvited(true);
+    if (socket && p.localParticipant?.identity) {
+      socket.emit("joinRoom", roomName, p.localParticipant.identity);
+
+      socket.on(
+        "inviteGuest",
+        (data: { participantId: string; roomName: string }) => {
+          if (data.participantId === p.localParticipant?.identity) {
+            setIsInvited(true);
+            setHasPendingRequest(false);
+          }
         }
+      );
+
+      socket.on("guestRequestsUpdate", (requests: GuestRequest[]) => {
+        setGuestRequests(requests);
+
+        const hasRequest = requests.some(
+          (request) => request.participantId === p.localParticipant?.identity
+        );
+        setHasPendingRequest(hasRequest);
       });
 
       return () => {
         socket.off("inviteGuest");
+        socket.off("guestRequestsUpdate");
       };
     }
-  }, [socket, p.localParticipant?.identity]);
+  }, [socket, p.localParticipant?.identity, roomName, setGuestRequests]);
+
+  const request = () => {
+    if (socket) {
+      socket.emit("requestToSpeak", {
+        participantId: p.localParticipant?.identity,
+        name: p.localParticipant?.identity,
+        roomName,
+      });
+      setHasPendingRequest(true);
+    } else {
+      console.warn("Socket not initialized yet");
+    }
+  };
 
   const leaveStream = async () => {
     setToken(undefined);
@@ -80,22 +111,15 @@ const CallControls = ({
     }
   };
 
-  const request = () => {
-    if (socket) {
-      socket.emit("requestToSpeak", {
-        participantId: p.localParticipant?.identity,
-        name: p.localParticipant?.identity,
-      });
-    } else {
-      console.warn("Socket not initialized yet");
-    }
-  };
-
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
       <div
         className={`flex items-center justify-between ${
-          userType === "host" ? "w-[80%] lg:w-[28%]" : isInvited ? "w-[80%] lg:w-[28%]" : "w-[50%] lg:w-[18%]"
+          userType === "host"
+            ? "w-[80%] lg:w-[28%]"
+            : isInvited
+            ? "w-[80%] lg:w-[28%]"
+            : "w-[50%] lg:w-[18%]"
         }`}
       >
         {userType === "host" && (
@@ -131,14 +155,16 @@ const CallControls = ({
                 <BsAppIndicator />
               </div>
             </Tooltip>
-            <Tooltip content="Raise to speak">
-              <div
-                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
-                onClick={request}
-              >
-                <MdFrontHand />
-              </div>
-            </Tooltip>
+            {(!hasPendingRequest && !isInvited) && (
+              <Tooltip content="Raise to speak">
+                <div
+                  className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                  onClick={request}
+                >
+                  <MdFrontHand />
+                </div>
+              </Tooltip>
+            )}
             {isInvited && (
               <>
                 <Tooltip content="Mic">
@@ -171,7 +197,6 @@ const CallControls = ({
 };
 
 export default CallControls;
-
 
 export function UserView() {
   const tracks = useTracks(
