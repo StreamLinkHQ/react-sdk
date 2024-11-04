@@ -13,8 +13,7 @@ import { TfiAgenda } from "react-icons/tfi";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
 import { GuestRequest, UserType } from "../types";
-import { baseApi } from "../utils";
-import { useNotification, useSocket } from "../hooks";
+import { useNotification, useSocket, useHandleStreamDisconnect } from "../hooks";
 import { Tooltip } from "./base";
 
 type CallControlsProps = {
@@ -44,6 +43,7 @@ const CallControls = ({
   const { addNotification } = useNotification();
   const socket = useSocket("http://localhost:8001");
   const p = useLocalParticipant();
+  const { leaveStream } = useHandleStreamDisconnect(publicKey?.toString() ?? '', roomName);
 
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
@@ -98,29 +98,9 @@ const CallControls = ({
       console.warn("Socket not initialized yet");
     }
   };
-
-  const leaveStream = async () => {
+  const handleDisconnectClick = async () => {
     setToken(undefined);
-    const data = {
-      walletAddress: publicKey,
-      liveStreamId: roomName,
-      leftAt: new Date(),
-    };
-    try {
-      const response = await fetch(`${baseApi}/participant/${roomName}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    await leaveStream();
   };
 
   return (
@@ -201,9 +181,10 @@ const CallControls = ({
         </Tooltip>
       </div>
 
-      <DisconnectButton onClick={leaveStream}>
+   <DisconnectButton onClick={handleDisconnectClick}>
         <MdCallEnd className="text-xl text-white" />
       </DisconnectButton>
+      
     </div>
   );
 };
