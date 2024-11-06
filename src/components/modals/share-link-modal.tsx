@@ -30,8 +30,8 @@ const ShareModal = ({ closeFunc, streamName }: ShareModalProps) => {
     <Modal
       bgColor="bg-modal-black"
       closeFunc={closeFunc}
-      width="w-1/3"
-      height="h-[50%]"
+      width="w-[80%] md:w-1/2 lg:w-1/3"
+      height="md:h-auto lg:h-[50%]"
     >
       <div className="flex flex-row justify-between items-center mb-4">
         <p className="text-xl font-semibold">Share</p>

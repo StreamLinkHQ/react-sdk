@@ -237,7 +237,7 @@ const AgendaForm = ({
                   action: "",
                 })
               }
-              className={`p-2 rounded-md ${
+              className={`p-2 rounded-md text-sm truncate lg:text-base ${
                 newAgendaItem.actionType === actionType
                   ? "bg-gray-800 text-white"
                   : "bg-gray-200 text-gray-800"
@@ -247,6 +247,7 @@ const AgendaForm = ({
             </button>
           ))}
         </div>
+        <p className="block md:hidden lg:hidden text-center font-bold">{newAgendaItem.actionType}</p>
         {renderActionInput()}
         <button
           onClick={handleAddAgendaItem}

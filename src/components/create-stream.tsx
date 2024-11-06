@@ -88,8 +88,6 @@ const CreateStreamForm = () => {
       });
 
       setNewAgendaItem({ time: 0, actionType: "Poll", action: "" });
-      // setPollTitle("");
-      // setPollOptions(["", ""]);
       setAgendaItems([]);
     } catch (error) {
       console.error(error);
@@ -105,8 +103,8 @@ const CreateStreamForm = () => {
 
   return (
     <>
-      <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md border mt-5">
-        <h1 className="text-2xl font-bold mb-6">Create Streamlink</h1>
+      <div className="w-[90%] md:w-[80%] lg:w-[80%] max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md border mt-5">
+        <h1 className="text-2xl font-bold mb-6 text-center">Create Streamlink</h1>
 
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Stream Type</h2>
