@@ -102,10 +102,15 @@ const Timeline = ({
       }
 
       const responseData = await response.json();
-
-      const updatedAgendas = actions.map((action) =>
-        action.id === id ? responseData : action
-      );
+      const updatedAgendas = actions.map((action) => {
+        if (action.id === id) {
+          return {
+            ...responseData,
+            action: responseData.action === "Q_A" ? "Q&A" : responseData.action
+          };
+        }
+        return action;
+      });
       setAgendas(updatedAgendas);
       addNotification({
         type: "success",

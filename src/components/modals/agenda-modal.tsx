@@ -82,7 +82,7 @@ const AgendaModal = ({
       console.error("Error updating agenda:", error);
     }
   };
-  const updateStreamAgenda = async () => {
+  const addStreamAgenda = async () => {
     setLoading(true);
     try {
       const data = {
@@ -113,7 +113,16 @@ const AgendaModal = ({
       }
 
       const newAgendas = await response.json();
-      setAgendas([...agendas, ...newAgendas]);
+      const updatedAgendas= newAgendas.map((item: StreamAgenda)=> {
+        if (item.action === "Q_A") {
+          return {
+            ...item,
+            action: "Q&A"
+          };
+        }
+        return item;
+      });
+      setAgendas([...agendas, ...updatedAgendas]);
       addNotification({
         type: "success",
         message: "Agendas updated successfully.",
@@ -170,7 +179,7 @@ const AgendaModal = ({
             {agendaItems.length > 0 && (
               <button
                 className="w-full p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                onClick={updateStreamAgenda}
+                onClick={addStreamAgenda}
               >
                 Save Agenda
               </button>

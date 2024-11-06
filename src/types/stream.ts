@@ -1,13 +1,19 @@
-export type ActionType = "Poll" | "Transaction" | "Giveaway" | "Q&A" | "Custom";
+export type ActionType =
+  | "Poll"
+  | "Transaction"
+  | "Giveaway"
+  | "Q&A"
+  | "Custom"
+  | "Q_A";
 
-export type UserType = "host" | "guest"
+export type UserType = "host" | "guest";
 
 export type AgendaDetails = {
   agendaId: string;
   id: number;
   item: string;
   wallets: string[];
-}
+};
 
 export type StreamAgenda = {
   action: ActionType;
@@ -39,7 +45,7 @@ export type PollAction = {
 export type Recipient = {
   publicKey: string;
   amount: number;
-}
+};
 
 export type GenerateTokenParams = {
   audioDeviceId: string;
@@ -53,7 +59,6 @@ type PollData = {
   title: string;
   details: AgendaDetails;
   // Add other poll-specific fields
-
 };
 
 type QAData = {
@@ -68,23 +73,26 @@ type CustomData = {
   // Add other custom-specific fields
 };
 
-export type AddonState = {
-  type: "Custom";
-  isActive: boolean;
-  data?: CustomData;
-} | {
-  type: "Q&A";
-  isActive: boolean;
-  data?: QAData;
-} | {
-  type: "Poll";
-  isActive: boolean;
-  data?: PollData;
-};
+export type AddonState =
+  | {
+      type: "Custom";
+      isActive: boolean;
+      data?: CustomData;
+    }
+  | {
+      type: "Q&A";
+      isActive: boolean;
+      data?: QAData;
+    }
+  | {
+      type: "Poll";
+      isActive: boolean;
+      data?: PollData;
+    };
 
 export type ActiveAddons = Record<string, AddonState>;
 
 export type GuestRequest = {
   participantId: string;
-  name:string
-}
+  name: string;
+};

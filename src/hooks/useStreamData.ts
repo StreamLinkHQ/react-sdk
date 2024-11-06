@@ -14,7 +14,11 @@ export const useStreamData = (roomName: string) => {
 
         const streamData = await response.json();
         if (Array.isArray(streamData.agenda)) {
-          setAgendas(streamData.agenda);
+          const updatedAgenda = streamData.agenda.map((agenda: StreamAgenda) => ({
+            ...agenda,
+            action: agenda.action === "Q_A" ? "Q&A" : agenda.action
+          }))
+          setAgendas(updatedAgenda);
         }
         if (streamData.callType) {
           setCallType(streamData.callType);
