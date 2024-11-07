@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Loader } from "../base";
 import Timeline from "../timeline";
-import { StreamAgenda, UnSavedAgendaItem, PollAction } from "../../types";
+import { StreamAgenda, UnSavedAgendaItem, PollAction, QActionType } from "../../types";
 import { baseApi } from "../../utils";
 import { useNotification } from "../../hooks";
 import AgendaForm from "../agenda-form";
@@ -114,7 +114,7 @@ const AgendaModal = ({
 
       const newAgendas = await response.json();
       const updatedAgendas= newAgendas.map((item: StreamAgenda)=> {
-        if (item.action === "Q_A") {
+        if (item.action as QActionType === "Q_A") {
           return {
             ...item,
             action: "Q&A"
@@ -163,9 +163,9 @@ const AgendaModal = ({
         <Modal
           bgColor="bg-modal-black"
           closeFunc={setShowAddAgenda}
-          width="w-[40%]"
+          width="w-[88%] md:w-[65%] lg:w-[40%]"
           position="center"
-          height="h-[520px]"
+          height="h-auto h-[520px]"
         >
           <div>
             <AgendaForm

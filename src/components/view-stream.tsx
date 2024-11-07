@@ -19,6 +19,7 @@ import {
   GuestRequest,
 } from "../types";
 import RequestCard from "./request-card";
+import { baseApi } from "../utils";
 
 type ViewStreamProps = {
   roomName: string;
@@ -39,7 +40,7 @@ const ViewStream = ({
 }: ViewStreamProps) => {
   const { token, setToken, generateToken } = useStreamToken(roomName, userType);
   const { agendas, setAgendas, callType } = useStreamData(roomName);
-  const socket = useSocket("http://localhost:8001");
+  const socket = useSocket(`${baseApi}`);
   const { activeAddons } = useStreamAddons(socket);
 
   const { addNotification, removeNotification, updateNotification } =

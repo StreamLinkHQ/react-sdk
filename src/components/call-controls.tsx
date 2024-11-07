@@ -15,6 +15,7 @@ import { Track } from "livekit-client";
 import { GuestRequest, UserType } from "../types";
 import { useNotification, useSocket, useHandleStreamDisconnect } from "../hooks";
 import { Tooltip } from "./base";
+import { baseApi } from "../utils";
 
 type CallControlsProps = {
   userType: UserType;
@@ -38,10 +39,10 @@ const CallControls = ({
   setGuestRequests,
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
-  const [isInvited, setIsInvited] = useState(false);
-  const [hasPendingRequest, setHasPendingRequest] = useState(false);
+  const [isInvited, setIsInvited] = useState<boolean>(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
   const { addNotification } = useNotification();
-  const socket = useSocket("http://localhost:8001");
+  const socket = useSocket(`${baseApi}`);
   const p = useLocalParticipant();
   const { leaveStream } = useHandleStreamDisconnect(publicKey?.toString() ?? '', roomName);
 
@@ -184,7 +185,6 @@ const CallControls = ({
    <DisconnectButton onClick={handleDisconnectClick}>
         <MdCallEnd className="text-xl text-white" />
       </DisconnectButton>
-      
     </div>
   );
 };

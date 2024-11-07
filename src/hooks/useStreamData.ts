@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { StreamAgenda } from "../types";
+import { useState, useEffect } from "react";
+import { QActionType, StreamAgenda } from "../types";
 import { baseApi } from "../utils";
 
 export const useStreamData = (roomName: string) => {
@@ -14,10 +14,15 @@ export const useStreamData = (roomName: string) => {
 
         const streamData = await response.json();
         if (Array.isArray(streamData.agenda)) {
-          const updatedAgenda = streamData.agenda.map((agenda: StreamAgenda) => ({
-            ...agenda,
-            action: agenda.action === "Q_A" ? "Q&A" : agenda.action
-          }))
+          const updatedAgenda = streamData.agenda.map(
+            (agenda: StreamAgenda) => ({
+              ...agenda,
+              action:
+                (agenda.action as QActionType) === "Q_A"
+                  ? "Q&A"
+                  : agenda.action,
+            })
+          );
           setAgendas(updatedAgenda);
         }
         if (streamData.callType) {

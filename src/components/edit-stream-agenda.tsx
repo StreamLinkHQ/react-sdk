@@ -182,12 +182,12 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc }: EditAgendaProps) => {
     <>
       <div className="p-6 max-w-lg mx-auto bg-white rounded shadow-md border">
         <h3 className="text-xl font-bold mb-4 text-center">Edit Agenda</h3>
-        <div className="flex space-x-3 mb-4">
+        <div className="flex space-x-3 mb-4 max-w-full">
           {agendaTypes.map((agendaType, i) => (
             <button
               key={i}
               onClick={() => handleActionTypeChange(agendaType as ActionType)}
-              className={`px-3 py-1.5 rounded ${
+              className={`p-2 rounded text-sm truncate lg:text-base ${
                 actionType === agendaType
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200"
@@ -197,7 +197,7 @@ const EditAgenda = ({ agenda, onSubmit, closeFunc }: EditAgendaProps) => {
             </button>
           ))}
         </div>
-
+        <p className="block md:hidden lg:hidden text-center font-bold">{actionType}</p>
         {renderInputFields()}
 
         <div className="mt-6 flex justify-between">

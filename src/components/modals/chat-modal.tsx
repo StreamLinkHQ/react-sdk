@@ -25,7 +25,7 @@ const ChatModal = ({ closeFunc, chatMessages }: ChatModalProps) => {
         bgColor="bg-modal-black"
         closeFunc={closeFunc}
         position="right"
-        width="w-2/3 lg:w-1/4"
+        width="w-2/3 md:w-1/2 lg:w-1/4"
       >
         <div>
           {chatMessages.map((chat, i) => (

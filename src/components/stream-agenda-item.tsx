@@ -65,7 +65,7 @@ const StreamAgendaItem = ({
           closeFunc={setIsEditingAgenda}
           position="center"
           height="h-auto"
-          width="w-[40%]"
+          width="w-[88%] md:w-[65%] lg:w-[40%]"
         >
           <EditAgenda
             agenda={selectedAction}

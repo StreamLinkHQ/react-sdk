@@ -1,12 +1,8 @@
-export type ActionType =
-  | "Poll"
-  | "Transaction"
-  | "Giveaway"
-  | "Q&A"
-  | "Custom"
-  | "Q_A";
+export type ActionType = "Poll" | "Transaction" | "Giveaway" | "Q&A" | "Custom";
 
 export type UserType = "host" | "guest";
+
+export type QActionType = "Q_A" | "Q&A";
 
 export type AgendaDetails = {
   agendaId: string;

@@ -31,7 +31,7 @@ const Modal = ({
       : "left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2";
 
   return (
-    <div className={`z-[80] w-full h-full fixed top-0 ${bgColor}`}>
+    <div className={`z-[80] w-full h-full fixed top-0 ${bgColor} left-0`}>
       <div
         className={`absolute ${positionClass} ${width} ${height} ${childBgColor} p-6 overflow-y-auto overflow-x-hidden`}
       >
