@@ -2,12 +2,13 @@ import {
   RoomAudioRenderer,
   useChat,
   ParticipantContext,
-  useLocalParticipant
+  useLocalParticipant,
 } from "@livekit/components-react";
 import StreamParticipants from "./stream-participants";
 import CallControls, { UserView } from "./call-controls";
 import { ChatModal } from "./modals";
 import { GuestRequest, UserType } from "../types";
+import { useParticipantList } from "../hooks";
 
 type StreamViewProps = {
   callType: string;
@@ -30,11 +31,11 @@ const StreamView = ({
   showChatModal,
   onShowChat,
   onShowAddonModal,
-  setGuestRequests
+  setGuestRequests,
 }: StreamViewProps) => {
   const { chatMessages } = useChat();
   const p = useLocalParticipant();
- 
+  const { participants } = useParticipantList({ roomName });
   return (
     <ParticipantContext.Provider value={p.localParticipant}>
       <StreamParticipants roomName={roomName} userType={userType} />
@@ -51,7 +52,11 @@ const StreamView = ({
         setGuestRequests={setGuestRequests}
       />
       {showChatModal && (
-        <ChatModal closeFunc={onShowChat} chatMessages={chatMessages} />
+        <ChatModal
+          closeFunc={onShowChat}
+          chatMessages={chatMessages}
+          participants={participants}
+        />
       )}
     </ParticipantContext.Provider>
   );
