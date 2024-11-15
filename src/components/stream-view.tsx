@@ -20,6 +20,7 @@ type StreamViewProps = {
   showChatModal: boolean;
   onShowChat: (show: boolean) => void;
   setGuestRequests: (val: GuestRequest[]) => void;
+  setIdentity: (val: string) => void;
 };
 
 const StreamView = ({
@@ -32,6 +33,7 @@ const StreamView = ({
   onShowChat,
   onShowAddonModal,
   setGuestRequests,
+  setIdentity
 }: StreamViewProps) => {
   const { chatMessages } = useChat();
   const p = useLocalParticipant();
@@ -50,6 +52,7 @@ const StreamView = ({
         setShowChatModal={onShowChat}
         setShowAddonModal={onShowAddonModal}
         setGuestRequests={setGuestRequests}
+        setIdentity={setIdentity}
       />
       {showChatModal && (
         <ChatModal
