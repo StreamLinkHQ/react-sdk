@@ -14,15 +14,15 @@ const AddOnModal = ({ closeFunc, activeAddons }: AddOnModalProps) => {
         if (!state.isActive) return null;
 
         return (
-          <div key={type}>
-            <h3>{type}</h3>
+          <div key={type} className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold mb-4">{type}</h3>
             {type === "Poll" && state.data?.details && (
               <PollContent details={state.data.details} />
             )}
             {type === "Q&A" && <div>{/* Add your Q&A UI here */}</div>}
             {type === "Custom" && state.data && (
               <div>
-                <p>{state.data.title}</p>
+                <p className="text-lg">{state.data.title}</p>
                 {/* Add your custom action UI here */}
               </div>
             )}
@@ -38,7 +38,9 @@ const AddOnModal = ({ closeFunc, activeAddons }: AddOnModalProps) => {
     return filteredAddons.length > 0 ? (
       filteredAddons
     ) : (
-      <div>There are no addons currently</div>
+      <div className="p-4 text-center text-gray-500">
+        There are no addons currently
+      </div>
     );
   };
 
@@ -50,7 +52,9 @@ const AddOnModal = ({ closeFunc, activeAddons }: AddOnModalProps) => {
       width="w-full"
       height="h-1/3"
     >
-      <div>{renderAddonContent()}</div>
+      <div className="overflow-y-auto max-h-full">
+        {renderAddonContent()}
+      </div>
     </Modal>
   );
 };

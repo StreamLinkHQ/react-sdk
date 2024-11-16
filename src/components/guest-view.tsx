@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AgendaDetails } from "../types";
 import { baseApi } from "../utils";
 
@@ -11,30 +11,65 @@ export const PollContent = ({ details }: { details: AgendaDetails }) => {
   const [answer, setAnswer] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
+  const [voteCounts, setVoteCounts] = useState<VoteCounts>({});
   const { publicKey } = useWallet();
-  // Mock vote counts - in real app, this would be fetched from backend
-  const [voteCounts, setVoteCounts] = useState<VoteCounts>(() => {
-    const counts: VoteCounts = {};
-    details.wallets.forEach((wallet) => {
-      counts[wallet] = Math.floor(Math.random() * 10); // Mock data
-    });
-    return counts;
-  });
 
-  const totalVotes = Object.values(voteCounts).reduce(
-    (sum, count) => sum + count,
-    0
-  );
+  const fetchVoteCounts = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${baseApi}/poll/${details.agendaId}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setVoteCounts(data.voteCounts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch vote counts:", error);
+    }
+  }, [details.agendaId]);
+  
+  useEffect(() => {
+    // Check if user has already voted
+    const checkUserVote = async () => {
+      if (!publicKey) return;
 
-  const onVote = async (answer: string) => {
-    console.log(answer);
+      try {
+        const response = await fetch(
+          `${baseApi}/poll/${details.agendaId}/user-vote/${publicKey}`,
+          {
+            headers: {
+             "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.vote) {
+            setHasVoted(true);
+            fetchVoteCounts(); // Fetch current vote counts if user has voted
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check user vote:", error);
+      }
+    };
+
+    checkUserVote();
+  }, [publicKey, details.agendaId, fetchVoteCounts]);
+
+
+  const onVote = async (selectedOption: string) => {
+    if (!publicKey) return;
 
     const data = {
-      agendaId: details.id,
-      response: answer,
+      agendaId: details.agendaId,
+      response: selectedOption,
       respondent: publicKey?.toString(),
     };
+
     try {
+
       const response = await fetch(`${baseApi}/poll`, {
         method: "POST",
         headers: {
@@ -44,23 +79,23 @@ export const PollContent = ({ details }: { details: AgendaDetails }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error("Voting failed");
       }
+
+      await fetchVoteCounts();
+      return true;
     } catch (error) {
-      console.log(error);
+      console.error("Voting failed:", error);
+      throw error;
     }
   };
+
   const handleVote = async () => {
     if (!answer || !onVote) return;
 
     setIsVoting(true);
     try {
       await onVote(answer);
-      // Update local vote counts
-      setVoteCounts((prev) => ({
-        ...prev,
-        [answer]: (prev[answer] || 0) + 1,
-      }));
       setHasVoted(true);
     } catch (error) {
       console.error("Voting failed:", error);
@@ -68,6 +103,11 @@ export const PollContent = ({ details }: { details: AgendaDetails }) => {
       setIsVoting(false);
     }
   };
+
+  const totalVotes = Object.values(voteCounts).reduce(
+    (sum, count) => sum + count,
+    0
+  );
 
   const getPercentage = (votes: number) => {
     if (totalVotes === 0) return 0;
@@ -128,14 +168,18 @@ export const PollContent = ({ details }: { details: AgendaDetails }) => {
       </div>
       <button
         onClick={handleVote}
-        disabled={!answer || isVoting}
+        disabled={!answer || isVoting || !publicKey}
         className={`mt-4 w-full p-2 rounded text-white transition-colors ${
-          answer && !isVoting
+          answer && !isVoting && publicKey
             ? "bg-blue-500 hover:bg-blue-600"
             : "bg-gray-300 cursor-not-allowed"
         }`}
       >
-        {isVoting ? "Voting..." : "Submit Vote"}
+        {!publicKey
+          ? "Connect Wallet to Vote"
+          : isVoting
+          ? "Voting..."
+          : "Submit Vote"}
       </button>
     </div>
   );
