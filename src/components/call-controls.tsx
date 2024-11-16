@@ -8,12 +8,16 @@ import {
   ParticipantTile,
 } from "@livekit/components-react";
 import { MdCallEnd, MdFrontHand } from "react-icons/md";
-import { BsAppIndicator, BsWechat } from "react-icons/bs";
+import { BsAppIndicator, BsWechat, BsGiftFill } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
 import { GuestRequest, UserType } from "../types";
-import { useNotification, useSocket, useHandleStreamDisconnect } from "../hooks";
+import {
+  useNotification,
+  useSocket,
+  useHandleStreamDisconnect,
+} from "../hooks";
 import { Tooltip } from "./base";
 import { baseApi } from "../utils";
 
@@ -25,7 +29,10 @@ type CallControlsProps = {
   setShowAgendaModal: (val: boolean) => void;
   setShowChatModal: (val: boolean) => void;
   setShowAddonModal: (val: boolean) => void;
+  setShowTipModal: (val: boolean) => void;
+  showTipCardIcon: boolean
   setToken: (val: string | undefined) => void;
+  setIdentity: (val: string) => void;
 };
 
 const CallControls = ({
@@ -36,18 +43,28 @@ const CallControls = ({
   setShowChatModal,
   setShowAddonModal,
   roomName,
+  setShowTipModal,
   setGuestRequests,
+  setIdentity,
+  showTipCardIcon
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
   const { addNotification } = useNotification();
   const socket = useSocket(`${baseApi}`);
+
   const p = useLocalParticipant();
-  const { leaveStream } = useHandleStreamDisconnect(publicKey?.toString() ?? '', roomName);
+  const { leaveStream } = useHandleStreamDisconnect(
+    publicKey?.toString() ?? "",
+    roomName
+  );
+
+
 
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
+      setIdentity(p.localParticipant.identity);
       socket.emit("joinRoom", roomName, p.localParticipant.identity);
 
       socket.on(
@@ -73,10 +90,14 @@ const CallControls = ({
         );
         setHasPendingRequest(hasRequest);
       });
+      socket.on("disconnect", () => {
+        console.log("Disconnected from WebSocket server");
+      });
 
       return () => {
         socket.off("inviteGuest");
         socket.off("guestRequestsUpdate");
+        socket.off("disconnect");
       };
     }
   }, [
@@ -85,6 +106,7 @@ const CallControls = ({
     roomName,
     setGuestRequests,
     addNotification,
+    setIdentity,
   ]);
 
   const request = () => {
@@ -99,6 +121,7 @@ const CallControls = ({
       console.warn("Socket not initialized yet");
     }
   };
+
   const handleDisconnectClick = async () => {
     setToken(undefined);
     await leaveStream();
@@ -180,9 +203,21 @@ const CallControls = ({
             <BsWechat />
           </div>
         </Tooltip>
+        {showTipCardIcon && (
+          <div className="fixed top-28 z-50">
+            <Tooltip content="TipCard">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                onClick={() => setShowTipModal(true)}
+              >
+                <BsGiftFill />
+              </div>
+            </Tooltip>
+          </div>
+        )}
       </div>
 
-   <DisconnectButton onClick={handleDisconnectClick}>
+      <DisconnectButton onClick={handleDisconnectClick}>
         <MdCallEnd className="text-xl text-white" />
       </DisconnectButton>
     </div>

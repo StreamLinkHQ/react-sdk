@@ -165,7 +165,7 @@ const AgendaModal = ({
           closeFunc={setShowAddAgenda}
           width="w-[88%] md:w-[65%] lg:w-[40%]"
           position="center"
-          height="h-auto h-[520px]"
+          height="h-auto lg:h-[520px]"
         >
           <div>
             <AgendaForm

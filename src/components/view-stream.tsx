@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
 import {
   useSocket,
@@ -6,6 +6,7 @@ import {
   useStreamData,
   useStreamAddons,
   useNotification,
+  useStreamSync,
 } from "../hooks";
 import { PollToast, CustomToast, ActionToast } from "./toasts";
 import { AgendaModal, TransactionModal, AddOnModal } from "./modals";
@@ -38,26 +39,26 @@ const ViewStream = ({
   onPollStart,
   onCustomAction,
 }: ViewStreamProps) => {
+  const [showAgendaModal, setShowAgendaModal] = useState<boolean>(false);
+  const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
+  const [showAddonModal, setShowAddonModal] = useState<boolean>(false);
+  const [identity, setIdentity] = useState<string>();
+
   const { token, setToken, generateToken } = useStreamToken(roomName, userType);
   const { agendas, setAgendas, callType } = useStreamData(roomName);
   const socket = useSocket(`${baseApi}`);
   const { activeAddons } = useStreamAddons(socket);
-
   const { addNotification, removeNotification, updateNotification } =
     useNotification();
 
-  const [showAgendaModal, setShowAgendaModal] = useState(false);
-  const [showChatModal, setShowChatModal] = useState(false);
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [showAddonModal, setShowAddonModal] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [executedActions, setExecutedActions] = useState<Set<string>>(
-    new Set()
-  );
   const [guestRequests, setGuestRequests] = useState<GuestRequest[]>([]);
 
   const handleGuestRequests = useCallback((newRequests: GuestRequest[]) => {
     setGuestRequests(newRequests);
+  }, []);
+
+  const handleIdentity = useCallback((val: string) => {
+    setIdentity(val);
   }, []);
 
   const handleAction = useCallback(
@@ -171,8 +172,8 @@ const ViewStream = ({
     [
       addNotification,
       removeNotification,
-      userType,
       updateNotification,
+      userType,
       toastComponents,
       onTransactionStart,
       onPollStart,
@@ -181,28 +182,14 @@ const ViewStream = ({
     ]
   );
 
-  useEffect(() => {
-    if (!token) return;
-    const interval = setInterval(() => {
-      setCurrentTime((prevTime) => {
-        const newTime = prevTime + 1;
-        return newTime >= 3600 ? 0 : newTime;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [token]);
-
-  useEffect(() => {
-    if (!token) return;
-
-    agendas.forEach((item: StreamAgenda) => {
-      if (item.timeStamp <= currentTime && !executedActions.has(item.id)) {
-        handleAction(item);
-        setExecutedActions((prev) => new Set(prev).add(item.id));
-      }
-    });
-  }, [currentTime, agendas, executedActions, token, handleAction]);
-
+  const { currentTime } = useStreamSync(
+    token,
+    socket,
+    roomName,
+    identity,
+    agendas,
+    handleAction,
+  );
   if (!token) {
     return <PreJoinView onSubmit={generateToken} />;
   }
@@ -223,10 +210,9 @@ const ViewStream = ({
           roomName={roomName}
           onShowAgenda={() => setShowAgendaModal(true)}
           onTokenChange={setToken}
-          showChatModal={showChatModal}
-          onShowChat={setShowChatModal}
           onShowAddonModal={() => setShowAddonModal(true)}
           setGuestRequests={handleGuestRequests}
+          setIdentity={handleIdentity}
         />
       </LiveKitRoom>
 
@@ -250,7 +236,12 @@ const ViewStream = ({
       )}
       <div className="absolute right-10 top-20">
         {guestRequests.map((request, i) => (
-          <RequestCard request={request} userType={userType} roomName={roomName} key={i}/>
+          <RequestCard
+            request={request}
+            userType={userType}
+            roomName={roomName}
+            key={i}
+          />
         ))}
       </div>
     </>

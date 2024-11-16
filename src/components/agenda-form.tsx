@@ -123,7 +123,7 @@ const AgendaForm = ({
               value={pollTitle}
               onChange={(e) => setPollTitle(e.target.value)}
               placeholder="Poll Title"
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
             />
             {pollOptions.map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
@@ -136,7 +136,7 @@ const AgendaForm = ({
                     setPollOptions(newOptions);
                   }}
                   placeholder={`Option ${index + 1}`}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
                 />
                 {pollOptions.length > 2 && (
                   <button
@@ -183,7 +183,7 @@ const AgendaForm = ({
               setNewAgendaItem({ ...newAgendaItem, action: e.target.value })
             }
             placeholder="Enter details"
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
           />
         );
       default:

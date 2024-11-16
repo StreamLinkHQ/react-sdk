@@ -1,7 +1,7 @@
 
 export type User = {
     id:string;
-    name: string;
+    name?: string;
     walletAddress: string;
     tipCard?: string;
 }

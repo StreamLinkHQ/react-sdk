@@ -107,7 +107,7 @@ const CreateStreamForm = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Create Streamlink</h1>
 
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Stream Type</h2>
+          <p className="text-lg font-semibold mb-2">Stream Type</p>
           <div className="flex space-x-4">
             <label className="flex items-center">
               <input
@@ -134,7 +134,7 @@ const CreateStreamForm = () => {
 
         {streamType === "scheduled" && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Select Date</h2>
+            <p className="text-lg font-semibold mb-2">Select Date</p>
             <input
               type="datetime-local"
               value={selectedDate}
@@ -146,7 +146,7 @@ const CreateStreamForm = () => {
         )}
 
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Call Type</h2>
+          <p className="text-lg font-semibold mb-2">Call Type</p>
           <div className="flex space-x-4">
             <button
               onClick={() => setCallType("video")}
