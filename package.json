@@ -1,13 +1,16 @@
 {
-  "name": "streamlink-react",
-  "private": true,
+  "name": "@adaezekaibeyamma/streamlink-react",
+  "private": false,
   "version": "0.0.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bundle": "tsup src/index.ts"
   },
   "dependencies": {
     "@livekit/components-react": "^2.4.3",
@@ -42,8 +45,15 @@
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
+    "tsup": "^8.3.5",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"
+  },
+  "author": "Adaezekaibeyamma",
+  "license": "MIT",
+  "homepage": "https://github.com/StreamLinkHQ/react-sdk",
+  "github": {
+    "url": "https://github.com/StreamLinkHQ/react-sdk"
   }
 }

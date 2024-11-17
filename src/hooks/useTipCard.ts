@@ -22,7 +22,6 @@ export const useTipCard = (userWallet: string) => {
         }
         const userData: User = await response.json();
 
-        console.log({userData})
         setTipCardData({
           loading: false,
           error: false,

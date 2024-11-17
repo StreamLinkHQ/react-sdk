@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Transaction, PublicKey } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import { baseApi } from "../utils";
+import { baseApi } from "../utils/index";
 
 interface UseSignAndSubmitTransactionProps {
   transactionBase64: string | null;

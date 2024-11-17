@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import { StreamAgenda } from "../types";
+import { StreamAgenda } from "../types/index";
 
 interface InitialSyncData {
   currentTime: number;

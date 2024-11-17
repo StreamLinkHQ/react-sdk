@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PublicKey } from "@solana/web3.js";
-import { baseApi } from "../utils";
-import { Recipient } from "../types";
+import { baseApi } from "../utils/index";
+import { Recipient } from "../types/index";
 
 
 interface UseFetchTransactionProps {

@@ -1,7 +1,10 @@
-import { useEffect, useCallback } from 'react';
-import { baseApi } from '../utils';
+import { useEffect, useCallback } from "react";
+import { baseApi } from "../utils/index";
 
-export const useHandleStreamDisconnect = (publicKey: string, roomName: string) => {
+export const useHandleStreamDisconnect = (
+  publicKey: string,
+  roomName: string
+) => {
   const leaveStream = useCallback(async () => {
     try {
       const response = await fetch(`${baseApi}/participant/${roomName}`, {
@@ -26,21 +29,21 @@ export const useHandleStreamDisconnect = (publicKey: string, roomName: string) =
 
   useEffect(() => {
     const handlePageLeave = async (event: BeforeUnloadEvent | Event) => {
-      if (event.type === 'beforeunload') {
+      if (event.type === "beforeunload") {
         event.preventDefault();
       }
-      
+
       await leaveStream();
     };
 
-    window.addEventListener('beforeunload', handlePageLeave);
-    window.addEventListener('unload', handlePageLeave);
-    window.addEventListener('load', handlePageLeave);
-    
+    window.addEventListener("beforeunload", handlePageLeave);
+    window.addEventListener("unload", handlePageLeave);
+    window.addEventListener("load", handlePageLeave);
+
     return () => {
-      window.removeEventListener('beforeunload', handlePageLeave);
-      window.removeEventListener('unload', handlePageLeave);
-      window.removeEventListener('load', handlePageLeave);
+      window.removeEventListener("beforeunload", handlePageLeave);
+      window.removeEventListener("unload", handlePageLeave);
+      window.removeEventListener("load", handlePageLeave);
     };
   }, [leaveStream]);
 

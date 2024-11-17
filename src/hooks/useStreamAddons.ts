@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Socket } from 'socket.io-client';
-import { ActiveAddons } from "../types";
+import { useState, useEffect } from "react";
+import { Socket } from "socket.io-client";
+import { ActiveAddons } from "../types/index";
 
 export const useStreamAddons = (socket: Socket | null) => {
   const [activeAddons, setActiveAddons] = useState<ActiveAddons>({

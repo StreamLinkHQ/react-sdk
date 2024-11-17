@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { QActionType, StreamAgenda } from "../types";
-import { baseApi } from "../utils";
+import { QActionType, StreamAgenda } from "../types/index";
+import { baseApi } from "../utils/index";
 
 export const useStreamData = (roomName: string) => {
   const [agendas, setAgendas] = useState<StreamAgenda[]>([]);

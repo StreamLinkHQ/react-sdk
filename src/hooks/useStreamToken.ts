@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { UserType, GenerateTokenParams } from "../types";
-import { baseApi } from "../utils";
+import { UserType, GenerateTokenParams } from "../types/index";
+import { baseApi } from "../utils/index";
 import { useNotification } from "./useNotification";
 
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Transaction, PublicKey } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import { baseApi } from "../utils";
-import { Recipient } from "../types";
+import { baseApi } from "../utils/index";
+import { Recipient } from "../types/index";
 
 interface UseTransactionProps {
   publicKey: PublicKey | null;

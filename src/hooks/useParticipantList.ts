@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { baseApi } from "../utils";
-import { Participant } from "../types";
+import { baseApi } from "../utils/index";
+import { Participant } from "../types/index";
 
 interface UseParticipantListProps {
   roomName: string;
