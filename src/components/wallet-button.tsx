@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+// import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { TipLinkLoginButton, WalletConnectButton, WalletModalButton, WalletMultiButton } from "@tiplink/wallet-adapter-react-ui"
 import { useWallet } from "@solana/wallet-adapter-react";
 import { baseApi } from "../utils";
 import { useUser, useNotification } from "../hooks";
@@ -47,7 +48,10 @@ const WalletButton = () => {
     }
   }, [connected, publicKey, saveUserToDB]);
 
-  return <WalletMultiButton />;
+  return (
+  // <TipLinkModal title="tstst" logoSrc={""} theme={TipLinkModalTheme.LIGHT}/> TipLinkModalTheme
+  <WalletConnectButton /> 
+);
 };
 
 export default WalletButton;
