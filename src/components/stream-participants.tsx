@@ -1,9 +1,8 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { LuUsers, LuChevronUp, LuChevronDown } from "react-icons/lu";
-import { useClickOutside } from "../hooks/useClickOutside";
 import { Dropdown } from "./base";
-import { useParticipantList, useNotification } from "../hooks";
+import { useParticipantList, useNotification, useClickOutside } from "../hooks";
 import { Participant, UserType, DropdownOption } from "../types";
 import { SendModal } from "./modals";
 import { baseApi } from "../utils";

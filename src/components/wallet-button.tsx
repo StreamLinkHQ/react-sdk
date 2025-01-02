@@ -1,15 +1,23 @@
 import { useEffect, useCallback } from "react";
-// import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { TipLinkLoginButton, WalletConnectButton, WalletModalButton, WalletMultiButton } from "@tiplink/wallet-adapter-react-ui"
+import { GoogleViaTipLinkWalletName } from "@tiplink/wallet-adapter";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { baseApi } from "../utils";
 import { useUser, useNotification } from "../hooks";
 
 const WalletButton = () => {
-  const { publicKey, connected } = useWallet();
+  const { select, wallet, connect, autoConnect, publicKey, connected } =
+    useWallet();
+
   const { setUser } = useUser();
   const { addNotification } = useNotification();
 
+  useEffect(() => {
+    if (!autoConnect) {
+      if ("_disconnected" in (wallet?.adapter ?? {})) {
+        connect();
+      }
+    }
+  }, [autoConnect, connect, select, wallet]);
   const saveUserToDB = useCallback(
     async (walletAddress: string) => {
       try {
@@ -20,8 +28,10 @@ const WalletButton = () => {
           },
           body: JSON.stringify({ wallet: walletAddress }),
         });
-        if (!response.ok)
+
+        if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
         const user = await response.json();
         if (!user) {
@@ -36,6 +46,11 @@ const WalletButton = () => {
         setUser(user.data);
       } catch (error) {
         console.error("Error saving wallet address:", error);
+        addNotification({
+          type: "error",
+          message: "Failed to save wallet address",
+          duration: 3000,
+        });
       }
     },
     [addNotification, setUser]
@@ -49,9 +64,13 @@ const WalletButton = () => {
   }, [connected, publicKey, saveUserToDB]);
 
   return (
-  // <TipLinkModal title="tstst" logoSrc={""} theme={TipLinkModalTheme.LIGHT}/> TipLinkModalTheme
-  <WalletConnectButton /> 
-);
+    <>
+      <button onClick={() => select(GoogleViaTipLinkWalletName)}>
+        Connect Wallet
+      </button>
+      <div>{wallet?.adapter.publicKey?.toBase58()}</div>
+    </>
+  );
 };
 
 export default WalletButton;

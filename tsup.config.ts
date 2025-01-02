@@ -17,5 +17,8 @@ export default defineConfig({
   esbuildOptions(options) {
     options.jsx = 'automatic'
   },
-  external: ["react", "react-dom"]
-});
+  external: ["react", "react-dom"],
+  // Add these options
+  noExternal: ['style-loader', 'css-loader'],
+  injectStyle: true, // This will inject styles into JS bundle
+})

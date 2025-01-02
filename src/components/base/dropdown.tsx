@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { useClickOutside } from "../../hooks/useClickOutside";
+import { useClickOutside } from "../../hooks";
 import { DropdownOption } from "../../types";
 
 

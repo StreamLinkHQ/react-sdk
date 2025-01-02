@@ -17,7 +17,7 @@ interface UseParticipantListReturn {
 
 export const useParticipantList = ({
   roomName,
-  refreshInterval = 5000,
+  refreshInterval = 2000,
 }: UseParticipantListProps): UseParticipantListReturn => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

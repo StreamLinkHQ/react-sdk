@@ -1,4 +1,5 @@
-import { ViewStream, CreateStream, StreamLinkRoom } from "./components/index";
+import "./index.css"
+import { ViewStream, CreateStream, StreamLinkRoom, WalletButton } from "./components/index";
 import {
   useNotification,
   useFetchTransaction,
@@ -17,6 +18,7 @@ import {
 
 export {
   ViewStream,
+  WalletButton,
   CreateStream,
   StreamLinkRoom,
   useNotification,
