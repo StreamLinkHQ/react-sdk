@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { baseApi } from "../utils/index";
+import { io, Socket } from "socket.io-client";
 import { Participant } from "../types/index";
+import { baseApi } from "../utils/index";
 
 interface UseParticipantListProps {
   roomName: string;
-  refreshInterval?: number;
 }
 
 interface UseParticipantListReturn {
@@ -17,7 +17,6 @@ interface UseParticipantListReturn {
 
 export const useParticipantList = ({
   roomName,
-  refreshInterval = 2000,
 }: UseParticipantListProps): UseParticipantListReturn => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -37,9 +36,7 @@ export const useParticipantList = ({
       setParticipants(activeParticipants);
       setError(null);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -48,10 +45,27 @@ export const useParticipantList = ({
   useEffect(() => {
     fetchParticipants();
 
-    const intervalId = setInterval(fetchParticipants, refreshInterval);
+    // Establish WebSocket connection
+    const socket: Socket = io(`${baseApi}`);
 
-    return () => clearInterval(intervalId);
-  }, [fetchParticipants, refreshInterval]);
+    // Join the room
+    socket.emit("joinRoom", roomName);
+
+    // Listen for participant updates
+    socket.on("participantJoined", (data: Participant) => {
+      setParticipants((prev) => [...prev, data]);
+    });
+
+    socket.on("participantLeft", ({ participantId }: { participantId: string }) => {
+      setParticipants((prev) =>
+        prev.filter((participant) => participant.id !== participantId)
+      );
+    });
+
+    return () => {
+      socket.disconnect(); // Clean up on component unmount
+    };
+  }, [fetchParticipants, roomName]);
 
   return {
     participants,

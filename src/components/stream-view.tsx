@@ -6,7 +6,8 @@ import {
   useLocalParticipant,
 } from "@livekit/components-react";
 import StreamParticipants from "./stream-participants";
-import CallControls, { UserView } from "./call-controls";
+import CallControls from "./call-controls";
+import UserView from "./user-view";
 import { ChatModal, TipCardModal } from "./modals";
 import { GuestRequest, UserType } from "../types";
 import { useParticipantList, useUser } from "../hooks";
