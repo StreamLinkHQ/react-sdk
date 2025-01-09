@@ -11,14 +11,12 @@ export default defineConfig({
     }
   },
   splitting: false,
-  sourcemap: true,
+  sourcemap: false, // Disable source maps
   clean: true,
   treeshake: true,
   esbuildOptions(options) {
-    options.jsx = 'automatic'
+    options.jsx = 'automatic';
   },
   external: ["react", "react-dom"],
-  // Add these options
-  noExternal: ['style-loader', 'css-loader'],
-  injectStyle: true, // This will inject styles into JS bundle
-})
+  noExternal: ['style-loader', 'css-loader']
+});

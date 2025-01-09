@@ -3,9 +3,6 @@ import {
   TrackToggle,
   DisconnectButton,
   useLocalParticipant,
-  useTracks,
-  GridLayout,
-  ParticipantTile,
 } from "@livekit/components-react";
 import { MdCallEnd, MdFrontHand } from "react-icons/md";
 import { BsAppIndicator, BsWechat, BsGiftFill } from "react-icons/bs";
@@ -20,6 +17,7 @@ import {
 } from "../hooks";
 import { Tooltip } from "./base";
 import { baseApi } from "../utils";
+import CameraToggle from "./camera-toggle";
 
 type CallControlsProps = {
   userType: UserType;
@@ -30,7 +28,7 @@ type CallControlsProps = {
   setShowChatModal: (val: boolean) => void;
   setShowAddonModal: (val: boolean) => void;
   setShowTipModal: (val: boolean) => void;
-  showTipCardIcon: boolean
+  showTipCardIcon: boolean;
   setToken: (val: string | undefined) => void;
   setIdentity: (val: string) => void;
 };
@@ -46,21 +44,21 @@ const CallControls = ({
   setShowTipModal,
   setGuestRequests,
   setIdentity,
-  showTipCardIcon
+  showTipCardIcon,
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
   const { addNotification } = useNotification();
+
   const socket = useSocket(`${baseApi}`);
 
   const p = useLocalParticipant();
+
   const { leaveStream } = useHandleStreamDisconnect(
     publicKey?.toString() ?? "",
     roomName
   );
-
-
 
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
@@ -126,7 +124,6 @@ const CallControls = ({
     setToken(undefined);
     await leaveStream();
   };
-
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
       <div
@@ -154,11 +151,18 @@ const CallControls = ({
             <Tooltip content="Screen">
               <TrackToggle source={Track.Source.ScreenShare} />
             </Tooltip>
-            <Tooltip content="Video">
-              {callType === "video" && (
-                <TrackToggle source={Track.Source.Camera} />
-              )}
-            </Tooltip>
+            {callType === "video" && (
+              <>
+                <Tooltip content="Video">
+                  <TrackToggle source={Track.Source.Camera} />
+                </Tooltip>
+                {p.isCameraEnabled && (
+                  <Tooltip content="Switch camera">
+                    <CameraToggle localParticipant={p.localParticipant} />
+                  </Tooltip>
+                )}
+              </>
+            )}
           </>
         )}
         {userType === "guest" && (
@@ -225,22 +229,3 @@ const CallControls = ({
 };
 
 export default CallControls;
-
-export function UserView() {
-  const tracks = useTracks(
-    [
-      { source: Track.Source.Camera, withPlaceholder: true },
-      { source: Track.Source.ScreenShare, withPlaceholder: false },
-    ],
-    { onlySubscribed: false }
-  );
-  return (
-    <GridLayout
-      tracks={tracks}
-      style={{ height: "calc(100vh - var(--lk-control-bar-height))" }}
-      // className="h-full"
-    >
-      <ParticipantTile />
-    </GridLayout>
-  );
-}

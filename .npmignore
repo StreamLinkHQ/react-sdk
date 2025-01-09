@@ -11,3 +11,5 @@ tsconfig.json
 tsconfig.node.json
 tsup.config.ts
 vite.config.ts
+*.map
+dist/*.map
