@@ -10,14 +10,15 @@ type RequestCardProps = {
 
 const RequestCard = ({ userType, request, roomName }: RequestCardProps) => {
   const { addNotification } = useNotification();
+  const { walletAddress } = request;
   const inviteGuest = async (participantId: string) => {
     try {
-      const response = await fetch(`${baseApi}/livestream/invite`, {
+      const response = await fetch(`${baseApi}/participant/make-host`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ participantId, roomName }),
+        body: JSON.stringify({ participantId, roomName, walletAddress }),
       });
 
       if (!response.ok) {

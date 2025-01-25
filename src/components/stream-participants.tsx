@@ -70,14 +70,14 @@ const StreamParticipants = ({
     }
     handleRefetch();
   };
-  const makeHost = async (participantId: string) => {
+  const makeTempHost = async (participantId: string, walletAddress: string) => {
     try {
-      const response = await fetch(`${baseApi}/livestream/invite`, {
+      const response = await fetch(`${baseApi}/participant/make-host`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ participantId, roomName }),
+        body: JSON.stringify({ participantId, roomName, walletAddress }),
       });
 
       if (!response.ok) {
@@ -99,6 +99,35 @@ const StreamParticipants = ({
     }
   };
 
+  const makeGuest = async (participantId: string, walletAddress: string) => {
+    try {
+      const response = await fetch(`${baseApi}/participant/make-guest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ participantId, roomName, walletAddress }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to invite guest:", await response.text());
+        addNotification({
+          type: "error",
+          message: "Failed to invite guest",
+          duration: 3000,
+        });
+      } else {
+        addNotification({
+          type: "success",
+          message: "User made guest successfully!",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error inviting guest:", error);
+    }
+  }
+
   const getDropdownOptions = (
     user: Participant,
     userType: string
@@ -114,8 +143,8 @@ const StreamParticipants = ({
       userType === "host"
         ? [
             {
-              label: "Make Host",
-              action: () => makeHost(user.userName),
+              label: user.userType === "temp-host" ? "Return to Guest" : "Make Host",
+              action: () => user.userType === "temp-host"? makeGuest(user.userName, user.walletAddress) :  makeTempHost(user.userName, user.walletAddress),
             },
           ]
         : [];

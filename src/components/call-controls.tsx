@@ -14,6 +14,7 @@ import {
   useNotification,
   useSocket,
   useHandleStreamDisconnect,
+  useDownloadParticipants,
 } from "../hooks";
 import { Tooltip } from "./base";
 import { baseApi } from "../utils";
@@ -49,6 +50,10 @@ const CallControls = ({
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
+  const { downloadParticipants } = useDownloadParticipants({
+    roomName,
+  });
+
   const { addNotification } = useNotification();
 
   const socket = useSocket(`${baseApi}`);
@@ -60,6 +65,19 @@ const CallControls = ({
     roomName
   );
 
+const testRecord = async () => {
+  const data = {
+    roomName, userType, userName: "host", wallet: publicKey?.toString() ?? "" 
+  }
+  const response = await fetch(`${baseApi}/livestream/record`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  console.log(response)
+}
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
       setIdentity(p.localParticipant.identity);
@@ -79,6 +97,18 @@ const CallControls = ({
           }
         }
       );
+
+      socket.on("returnToGuest", (data: { participantId: string; roomName: string }) => {
+        if (data.participantId === p.localParticipant?.identity) {
+          setIsInvited(false);
+          setHasPendingRequest(false);
+          addNotification({
+            type: "success",
+            message: "You have been returned to the audience!",
+            duration: 3000,
+          });
+      }
+    });
 
       socket.on("guestRequestsUpdate", (requests: GuestRequest[]) => {
         setGuestRequests(requests);
@@ -113,6 +143,7 @@ const CallControls = ({
         participantId: p.localParticipant?.identity,
         name: p.localParticipant?.identity,
         roomName,
+        walletAddress: publicKey?.toString() ?? "",
       });
       setHasPendingRequest(true);
     } else {
@@ -207,6 +238,7 @@ const CallControls = ({
             <BsWechat />
           </div>
         </Tooltip>
+        <button className="border border-white" onClick={downloadParticipants}>testing</button>
         {showTipCardIcon && (
           <div className="fixed top-28 z-50">
             <Tooltip content="TipCard">

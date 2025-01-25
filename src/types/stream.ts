@@ -1,6 +1,6 @@
 export type ActionType = "Poll" | "Transaction" | "Giveaway" | "Q&A" | "Custom";
 
-export type UserType = "host" | "guest";
+export type UserType = "host" | "guest" | "temp-host";
 
 export type QActionType = "Q_A" | "Q&A";
 
@@ -23,7 +23,9 @@ export type Participant = {
   id: string;
   userName: string;
   walletAddress: string;
-  leftAt?: number;
+  leftAt?: string;
+  joinedAt?: string;
+  liveStreamId?: string;
   userType: UserType;
 };
 
@@ -91,4 +93,5 @@ export type ActiveAddons = Record<string, AddonState>;
 export type GuestRequest = {
   participantId: string;
   name: string;
+  walletAddress: string;
 };
