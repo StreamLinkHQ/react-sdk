@@ -126,7 +126,7 @@ const StreamParticipants = ({
     } catch (error) {
       console.error("Error inviting guest:", error);
     }
-  }
+  };
 
   const getDropdownOptions = (
     user: Participant,
@@ -140,11 +140,15 @@ const StreamParticipants = ({
     ];
 
     const hostOptions: DropdownOption[] =
-      userType === "host"
+      userType === "host" && user.userType !== "host"
         ? [
             {
-              label: user.userType === "temp-host" ? "Return to Guest" : "Make Host",
-              action: () => user.userType === "temp-host"? makeGuest(user.userName, user.walletAddress) :  makeTempHost(user.userName, user.walletAddress),
+              label:
+                user.userType === "temp-host" ? "Return to Guest" : "Make Host",
+              action: () =>
+                user.userType === "temp-host"
+                  ? makeGuest(user.userName, user.walletAddress)
+                  : makeTempHost(user.userName, user.walletAddress),
             },
           ]
         : [];

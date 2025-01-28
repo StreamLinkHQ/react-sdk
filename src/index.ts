@@ -4,6 +4,7 @@ import {
   useNotification,
   useFetchTransaction,
   useParticipantList,
+  useDownloadParticipants,
   useSignAndSubmitTransaction,
   useTransaction,
   useUser,
@@ -33,5 +34,6 @@ export {
   useStreamAddons,
   useStreamData,
   useHandleStreamDisconnect,
+  useDownloadParticipants,
   useSocket
 };

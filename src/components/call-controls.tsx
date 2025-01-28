@@ -7,6 +7,7 @@ import {
 import { MdCallEnd, MdFrontHand } from "react-icons/md";
 import { BsAppIndicator, BsWechat, BsGiftFill } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
+import { LiaUserCheckSolid } from "react-icons/lia";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Track } from "livekit-client";
 import { GuestRequest, UserType } from "../types";
@@ -65,19 +66,6 @@ const CallControls = ({
     roomName
   );
 
-const testRecord = async () => {
-  const data = {
-    roomName, userType, userName: "host", wallet: publicKey?.toString() ?? "" 
-  }
-  const response = await fetch(`${baseApi}/livestream/record`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  console.log(response)
-}
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
       setIdentity(p.localParticipant.identity);
@@ -98,17 +86,20 @@ const testRecord = async () => {
         }
       );
 
-      socket.on("returnToGuest", (data: { participantId: string; roomName: string }) => {
-        if (data.participantId === p.localParticipant?.identity) {
-          setIsInvited(false);
-          setHasPendingRequest(false);
-          addNotification({
-            type: "success",
-            message: "You have been returned to the audience!",
-            duration: 3000,
-          });
-      }
-    });
+      socket.on(
+        "returnToGuest",
+        (data: { participantId: string; roomName: string }) => {
+          if (data.participantId === p.localParticipant?.identity) {
+            setIsInvited(false);
+            setHasPendingRequest(false);
+            addNotification({
+              type: "success",
+              message: "You have been returned to the audience!",
+              duration: 3000,
+            });
+          }
+        }
+      );
 
       socket.on("guestRequestsUpdate", (requests: GuestRequest[]) => {
         setGuestRequests(requests);
@@ -194,6 +185,14 @@ const testRecord = async () => {
                 )}
               </>
             )}
+            <Tooltip content="Attendance">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+                onClick={downloadParticipants}
+              >
+                <LiaUserCheckSolid />
+              </div>
+            </Tooltip>
           </>
         )}
         {userType === "guest" && (
@@ -238,7 +237,6 @@ const testRecord = async () => {
             <BsWechat />
           </div>
         </Tooltip>
-        <button className="border border-white" onClick={downloadParticipants}>testing</button>
         {showTipCardIcon && (
           <div className="fixed top-28 z-50">
             <Tooltip content="TipCard">

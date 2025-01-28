@@ -25,10 +25,12 @@ const CreateStreamForm = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [streamName, setStreamName] = useState<string>("");
+  const [streamTitle, setStreamTitle] = useState<string>("");
 
   const createStreamLink = async () => {
     if (
-      agendaItems.length === 0 ||
+      // agendaItems.length === 0 ||
+      !streamTitle ||
       (streamType === "scheduled" && !selectedDate)
     ) {
       addNotification({
@@ -49,6 +51,7 @@ const CreateStreamForm = () => {
     }
     const data = {
       callType,
+      title: streamTitle,
       scheduledFor: selectedDate,
       wallet: publicKey,
       agendas: agendaItems.map((item) => {
@@ -106,6 +109,15 @@ const CreateStreamForm = () => {
       <div className="w-[90%] md:w-[80%] lg:w-[80%] max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md border mt-5">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Streamlink</h1>
 
+        <div className="mb-6">
+          <p className="text-lg font-semibold mb-2">Stream Name</p>
+          <input
+            type="text"
+            placeholder="Stream Name"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+            onChange={(e) => setStreamTitle(e.target.value)}
+          />
+          </div>
         <div className="mb-6">
           <p className="text-lg font-semibold mb-2">Stream Type</p>
           <div className="flex space-x-4">
