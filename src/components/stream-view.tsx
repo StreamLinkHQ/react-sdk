@@ -8,9 +8,11 @@ import {
 import StreamParticipants from "./stream-participants";
 import CallControls from "./call-controls";
 import UserView from "./user-view";
+import ReactionOverlay from "./reactions-overlay";
 import { ChatModal, TipCardModal } from "./modals";
 import { GuestRequest, UserType } from "../types";
 import { useParticipantList, useUser } from "../hooks";
+
 
 type StreamViewProps = {
   callType: string;
@@ -38,8 +40,10 @@ const StreamView = ({
   const { participants } = useParticipantList({ roomName });
   const [showTipCardModal, setShowTipCardModal] = useState<boolean>(false);
   const [showChatModal, setShowChatModal] = useState<boolean>(false);
+  const [showReactions, setShowReactions] = useState<boolean>(false);
   const { user } = useUser();
   const [shouldShowTipIcon, setShouldShowTipIcon] = useState(!user?.tipCard);
+
 
   useEffect(() => {
     setShouldShowTipIcon(!user?.tipCard);
@@ -50,6 +54,12 @@ const StreamView = ({
       <StreamParticipants roomName={roomName} userType={userType} />
       <UserView />
       <RoomAudioRenderer />
+        <ReactionOverlay
+          roomName={roomName}
+          sender={p.localParticipant.identity}
+          showReactions={showReactions}
+        />
+
       <CallControls
         userType={userType}
         callType={callType}
@@ -62,6 +72,8 @@ const StreamView = ({
         setGuestRequests={setGuestRequests}
         setIdentity={setIdentity}
         showTipCardIcon={shouldShowTipIcon}
+        showReactions={showReactions}
+        setShowReactions={setShowReactions}
       />
       {showChatModal && (
         <ChatModal

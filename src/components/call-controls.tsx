@@ -4,7 +4,12 @@ import {
   DisconnectButton,
   useLocalParticipant,
 } from "@livekit/components-react";
-import { MdCallEnd, MdFrontHand } from "react-icons/md";
+import {
+  MdCallEnd,
+  MdFrontHand,
+  MdOutlineAddReaction,
+  MdAddReaction,
+} from "react-icons/md";
 import { BsAppIndicator, BsWechat, BsGiftFill } from "react-icons/bs";
 import { TfiAgenda } from "react-icons/tfi";
 import { LiaUserCheckSolid } from "react-icons/lia";
@@ -33,6 +38,8 @@ type CallControlsProps = {
   showTipCardIcon: boolean;
   setToken: (val: string | undefined) => void;
   setIdentity: (val: string) => void;
+  showReactions: boolean;
+  setShowReactions: (val: boolean) => void;
 };
 
 const CallControls = ({
@@ -47,6 +54,8 @@ const CallControls = ({
   setGuestRequests,
   setIdentity,
   showTipCardIcon,
+  showReactions,
+  setShowReactions
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
@@ -151,9 +160,9 @@ const CallControls = ({
       <div
         className={`flex items-center justify-between ${
           userType === "host"
-            ? "w-[80%] lg:w-[28%]"
+            ? "w-[80%] lg:w-[32%]"
             : isInvited
-            ? "w-[80%] lg:w-[28%]"
+            ? "w-[80%] lg:w-[30%]"
             : "w-[50%] lg:w-[18%]"
         }`}
       >
@@ -235,6 +244,14 @@ const CallControls = ({
             onClick={() => setShowChatModal(true)}
           >
             <BsWechat />
+          </div>
+        </Tooltip>
+        <Tooltip content="Reactions">
+          <div
+            className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
+            onClick={() => setShowReactions(!showReactions)}
+          >
+            {showReactions ? <MdAddReaction /> : <MdOutlineAddReaction />}
           </div>
         </Tooltip>
         {showTipCardIcon && (
