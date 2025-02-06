@@ -5,7 +5,7 @@ import { baseApi } from "../utils/index";
 import { useNotification } from "./useNotification";
 
 
-export const useStreamToken = (roomName: string, userType: UserType) => {
+export const useStreamToken = (roomName: string, userType: UserType, walletAddress: string) => {
   const [token, setToken] = useState<string>();
   const { publicKey } = useWallet();
   const { addNotification } = useNotification();
@@ -20,12 +20,13 @@ export const useStreamToken = (roomName: string, userType: UserType) => {
       return;
     }
 
-    const walletAddress = publicKey.toBase58();
+    // const walletAddress = publicKey.toBase58();
     const data = {
       roomName,
       userType,
       userName: val.username,
       wallet: walletAddress,
+      // wallet: val.walletAddress
     };
 
     try {

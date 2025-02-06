@@ -43,8 +43,9 @@ const ViewStream = ({
   const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
   const [showAddonModal, setShowAddonModal] = useState<boolean>(false);
   const [identity, setIdentity] = useState<string>();
+  const [walletAddress, setWalletAddress] = useState<string>("");
 
-  const { token, setToken, generateToken } = useStreamToken(roomName, userType);
+  const { token, setToken, generateToken } = useStreamToken(roomName, userType, walletAddress);
   const { agendas, setAgendas, callType } = useStreamData(roomName);
   const socket = useSocket(`${baseApi}`);
   const { activeAddons } = useStreamAddons(socket);
@@ -191,7 +192,7 @@ const ViewStream = ({
     handleAction,
   );
   if (!token) {
-    return <PreJoinView onSubmit={generateToken} />;
+    return <PreJoinView onSubmit={generateToken} setWallet={setWalletAddress}/>;
   }
 
   return (
