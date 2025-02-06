@@ -60,6 +60,8 @@ const CallControls = ({
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  
   const { downloadParticipants } = useDownloadParticipants({
     roomName,
   });
@@ -137,6 +139,21 @@ const CallControls = ({
     setIdentity,
   ]);
 
+  useEffect(() => {
+    if (isInvited && callType === "video" && p.localParticipant) {
+      const enableVideo = async () => {
+        try {
+          await p.localParticipant.setCameraEnabled(true);
+          // setIsVideoEnabled(true);
+        } catch (error) {
+          console.error("Error enabling video:", error);
+        }
+      };
+      
+      enableVideo();
+    }
+  }, [isInvited, callType, p.localParticipant]);
+
   const request = () => {
     if (socket) {
       socket.emit("requestToSpeak", {
@@ -155,6 +172,14 @@ const CallControls = ({
     setToken(undefined);
     await leaveStream();
   };
+
+  // const dropdownOptions: DropdownOption = [
+  //   {
+  //             label: "Agendas",
+  //             action: () => setShowAgendaModal(true),
+  //             icon: <TfiAgenda className="mr-2" />,
+  //           },
+  // ]
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
       <div
@@ -163,11 +188,26 @@ const CallControls = ({
             ? "w-[80%] lg:w-[32%]"
             : isInvited
             ? "w-[80%] lg:w-[30%]"
-            : "w-[50%] lg:w-[18%]"
+            : "w-[62%] lg:w-[18%]"
         }`}
       >
         {userType === "host" && (
           <>
+          {/* <Tooltip content="More">
+              <div
+                className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white block lg:hidden"
+                onClick={() => setIsDropdownOpen(true)}
+              >
+                <BsThreeDotsVertical />
+              </div>
+            </Tooltip>
+            { isDropdownOpen &&
+              <Dropdown
+              options={dropdownOptions}
+              isOpen={isDropdownOpen}
+              toggleDropdown={() => setIsDropdownOpen(!isDropdownOpen)}
+            />
+            } */}
             <Tooltip content="Agendas">
               <div
                 className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"

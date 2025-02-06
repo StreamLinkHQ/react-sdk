@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LocalParticipant } from "livekit-client";
 import { MdCameraswitch } from "react-icons/md";
 
@@ -8,9 +8,34 @@ type CameraToggleProps = {
 };
 
 const CameraToggle = ({ localParticipant, children }: CameraToggleProps) => {
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getDevices = async () => {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter((device) => device.kind === "videoinput");
+
+      setVideoDevices(cameras);
+      if (cameras.length > 0) {
+        setCurrentDeviceId(cameras[0].deviceId);
+      }
+    };
+
+    getDevices();
+  }, []);
 
   const toggleCamera = async () => {
+    if (videoDevices.length < 2) {
+      console.warn("Not enough cameras to switch");
+      return;
+    }
+
+    const nextDeviceIndex =
+      (videoDevices.findIndex((d) => d.deviceId === currentDeviceId) + 1) %
+      videoDevices.length;
+    const nextDeviceId = videoDevices[nextDeviceIndex].deviceId;
+
     const cameraTrackPublication = localParticipant.videoTrackPublications
       .values()
       .next().value;
@@ -22,37 +47,17 @@ const CameraToggle = ({ localParticipant, children }: CameraToggleProps) => {
         localParticipant.unpublishTrack(currentTrack);
       }
     }
-    console.log({ facingMode });
-    const newFacingMode = facingMode === "user" ? "environment" : "user";
 
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(
-        (device) => device.kind === "videoinput"
-      );
-
-      // Check if there's a camera available for the new facing mode
-      const videoDevice = videoDevices.find((device) =>
-        device.label.toLowerCase().includes(newFacingMode)
-      );
-
-      if (!videoDevice) {
-        console.warn(
-          `No ${newFacingMode} camera found. Reverting to current mode.`
-        );
-        return;
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: videoDevice.deviceId, facingMode: newFacingMode },
+        video: { deviceId: nextDeviceId },
       });
 
       const newTrack = stream.getVideoTracks()[0];
-
       await localParticipant.publishTrack(newTrack);
+      setCurrentDeviceId(nextDeviceId);
 
-      setFacingMode(newFacingMode);
-      console.log(`Switched to ${newFacingMode} camera`);
+      console.log(`Switched to camera: ${nextDeviceId}`);
     } catch (error) {
       console.error("Error switching camera:", error);
     }
