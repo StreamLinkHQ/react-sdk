@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
 import { UserType, GenerateTokenParams } from "../types/index";
 import { baseApi } from "../utils/index";
 import { useNotification } from "./useNotification";
@@ -7,18 +7,18 @@ import { useNotification } from "./useNotification";
 
 export const useStreamToken = (roomName: string, userType: UserType, walletAddress: string) => {
   const [token, setToken] = useState<string>();
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
   const { addNotification } = useNotification();
 
   const generateToken = async (val: GenerateTokenParams) => {
-    if (!publicKey) {
-      addNotification({
-        type: "error",
-        message: "Please, connect your wallet",
-        duration: 3000,
-      });
-      return;
-    }
+    // if (!publicKey) {
+    //   addNotification({
+    //     type: "error",
+    //     message: "Please, connect your wallet",
+    //     duration: 3000,
+    //   });
+    //   return;
+    // }
 
     // const walletAddress = publicKey.toBase58();
     const data = {

@@ -3,7 +3,9 @@ import ViewStream from "./view-stream";
 const ViewStreamTest = () => {
   const params = new URLSearchParams(window.location.search);
   const userType = params.get("userType") as "host" | "guest";
-  const roomName = params.get("room") || "kzo-qoq-mt3";
+  // const roomName = params.get("room") || "kzo-qoq-mt3";
+  const roomName = params.get("room") || "nm1-065-l8v";
+
   return (
     <div className="">
       <ViewStream roomName={roomName} userType={userType} />
