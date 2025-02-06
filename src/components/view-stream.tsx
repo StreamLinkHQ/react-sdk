@@ -214,6 +214,8 @@ const ViewStream = ({
           onShowAddonModal={() => setShowAddonModal(true)}
           setGuestRequests={handleGuestRequests}
           setIdentity={handleIdentity}
+          //remove this later
+          walletAddress={walletAddress}
         />
       </LiveKitRoom>
 

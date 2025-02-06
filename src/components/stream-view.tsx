@@ -23,6 +23,8 @@ type StreamViewProps = {
   onTokenChange: (token: string | undefined) => void;
   setGuestRequests: (val: GuestRequest[]) => void;
   setIdentity: (val: string) => void;
+  //remove this later
+  walletAddress: string
 };
 
 const StreamView = ({
@@ -34,6 +36,7 @@ const StreamView = ({
   onShowAddonModal,
   setGuestRequests,
   setIdentity,
+  walletAddress
 }: StreamViewProps) => {
   const { chatMessages } = useChat();
   const p = useLocalParticipant();
@@ -74,6 +77,8 @@ const StreamView = ({
         showTipCardIcon={shouldShowTipIcon}
         showReactions={showReactions}
         setShowReactions={setShowReactions}
+         //remove this later
+         walletAddress={walletAddress}
       />
       {showChatModal && (
         <ChatModal

@@ -40,6 +40,8 @@ type CallControlsProps = {
   setIdentity: (val: string) => void;
   showReactions: boolean;
   setShowReactions: (val: boolean) => void;
+    //remove this later
+    walletAddress: string
 };
 
 const CallControls = ({
@@ -55,7 +57,8 @@ const CallControls = ({
   setIdentity,
   showTipCardIcon,
   showReactions,
-  setShowReactions
+  setShowReactions,
+  walletAddress
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
@@ -160,7 +163,8 @@ const CallControls = ({
         participantId: p.localParticipant?.identity,
         name: p.localParticipant?.identity,
         roomName,
-        walletAddress: publicKey?.toString() ?? "",
+        // walletAddress: publicKey?.toString() ?? "",
+        walletAddress
       });
       setHasPendingRequest(true);
     } else {
