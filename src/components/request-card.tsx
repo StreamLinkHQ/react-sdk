@@ -11,6 +11,7 @@ type RequestCardProps = {
 const RequestCard = ({ userType, request, roomName }: RequestCardProps) => {
   const { addNotification } = useNotification();
   const { walletAddress } = request;
+  console.log({request})
   const inviteGuest = async (participantId: string) => {
     try {
       const response = await fetch(`${baseApi}/participant/make-host`, {
