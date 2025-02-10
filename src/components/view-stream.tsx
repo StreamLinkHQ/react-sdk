@@ -43,9 +43,8 @@ const ViewStream = ({
   const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
   const [showAddonModal, setShowAddonModal] = useState<boolean>(false);
   const [identity, setIdentity] = useState<string>();
-  const [walletAddress, setWalletAddress] = useState<string>("");
 
-  const { token, setToken, generateToken } = useStreamToken(roomName, userType, walletAddress);
+  const { token, setToken, generateToken } = useStreamToken(roomName, userType);
   const { agendas, setAgendas, callType } = useStreamData(roomName);
   const socket = useSocket(`${baseApi}`);
   const { activeAddons } = useStreamAddons(socket);
@@ -192,14 +191,16 @@ const ViewStream = ({
     handleAction,
   );
   if (!token) {
-    return <PreJoinView onSubmit={generateToken} setWallet={setWalletAddress}/>;
+    return <PreJoinView onSubmit={generateToken} />;
   }
-
   return (
     <>
       <LiveKitRoom
-        video={callType === "video"}
-        audio={true}
+      //  key={token}
+        // video={callType === "video"}
+        // screen={true}
+        audio={false}
+        video={false}
         token={token}
         serverUrl="wss://streamlink-vtdavgse.livekit.cloud"
         data-lk-theme="default"
@@ -214,8 +215,6 @@ const ViewStream = ({
           onShowAddonModal={() => setShowAddonModal(true)}
           setGuestRequests={handleGuestRequests}
           setIdentity={handleIdentity}
-          //remove this later
-          walletAddress={walletAddress}
         />
       </LiveKitRoom>
 

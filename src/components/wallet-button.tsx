@@ -66,7 +66,7 @@ const WalletButton = () => {
   return (
     <>
       <button onClick={() => select(GoogleViaTipLinkWalletName)}>
-        Connect Wallet
+        Sign In{" "}
       </button>
       <div>{wallet?.adapter.publicKey?.toBase58()}</div>
     </>

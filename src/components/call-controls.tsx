@@ -3,6 +3,7 @@ import {
   TrackToggle,
   DisconnectButton,
   useLocalParticipant,
+  useRoomContext,
 } from "@livekit/components-react";
 import {
   MdCallEnd,
@@ -40,8 +41,6 @@ type CallControlsProps = {
   setIdentity: (val: string) => void;
   showReactions: boolean;
   setShowReactions: (val: boolean) => void;
-    //remove this later
-    walletAddress: string
 };
 
 const CallControls = ({
@@ -58,13 +57,12 @@ const CallControls = ({
   showTipCardIcon,
   showReactions,
   setShowReactions,
-  walletAddress
 }: CallControlsProps) => {
   const { publicKey } = useWallet();
   const [isInvited, setIsInvited] = useState<boolean>(false);
   const [hasPendingRequest, setHasPendingRequest] = useState<boolean>(false);
   // const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  
+
   const { downloadParticipants } = useDownloadParticipants({
     roomName,
   });
@@ -80,9 +78,12 @@ const CallControls = ({
     roomName
   );
 
+  const room = useRoomContext();
+
   useEffect(() => {
     if (socket && p.localParticipant?.identity) {
       setIdentity(p.localParticipant.identity);
+
       socket.emit("joinRoom", roomName, p.localParticipant.identity);
 
       socket.on(
@@ -123,6 +124,26 @@ const CallControls = ({
         );
         setHasPendingRequest(hasRequest);
       });
+
+      socket.on("newToken", async ({ token }) => {
+        if (!room) {
+          console.warn("LiveKit room is not available");
+          return;
+        }
+
+        try {
+          console.log("Disconnecting LiveKit...");
+          await room.disconnect();
+
+          console.log("Reconnecting with new token...");
+          await room.connect("wss://streamlink-vtdavgse.livekit.cloud", token);
+
+          console.log("Successfully reconnected to LiveKit!");
+        } catch (error) {
+          console.error("Error reconnecting to LiveKit:", error);
+        }
+      });
+
       socket.on("disconnect", () => {
         console.log("Disconnected from WebSocket server");
       });
@@ -130,6 +151,7 @@ const CallControls = ({
       return () => {
         socket.off("inviteGuest");
         socket.off("guestRequestsUpdate");
+        socket.off("newToken");
         socket.off("disconnect");
       };
     }
@@ -140,22 +162,9 @@ const CallControls = ({
     setGuestRequests,
     addNotification,
     setIdentity,
+    setToken,
+    room,
   ]);
-
-  useEffect(() => {
-    if (isInvited && callType === "video" && p.localParticipant) {
-      const enableVideo = async () => {
-        try {
-          await p.localParticipant.setCameraEnabled(true);
-          // setIsVideoEnabled(true);
-        } catch (error) {
-          console.error("Error enabling video:", error);
-        }
-      };
-      
-      enableVideo();
-    }
-  }, [isInvited, callType, p.localParticipant]);
 
   const request = () => {
     if (socket) {
@@ -163,8 +172,7 @@ const CallControls = ({
         participantId: p.localParticipant?.identity,
         name: p.localParticipant?.identity,
         roomName,
-        // walletAddress: publicKey?.toString() ?? "",
-        walletAddress
+        walletAddress: publicKey?.toString() ?? "",
       });
       setHasPendingRequest(true);
     } else {
@@ -177,13 +185,6 @@ const CallControls = ({
     await leaveStream();
   };
 
-  // const dropdownOptions: DropdownOption = [
-  //   {
-  //             label: "Agendas",
-  //             action: () => setShowAgendaModal(true),
-  //             icon: <TfiAgenda className="mr-2" />,
-  //           },
-  // ]
   return (
     <div className="flex w-[90%] lg:w-[80%] mx-auto justify-between items-center absolute bottom-2 left-4">
       <div
@@ -197,7 +198,7 @@ const CallControls = ({
       >
         {userType === "host" && (
           <>
-          {/* <Tooltip content="More">
+            {/* <Tooltip content="More">
               <div
                 className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white block lg:hidden"
                 onClick={() => setIsDropdownOpen(true)}
@@ -205,13 +206,7 @@ const CallControls = ({
                 <BsThreeDotsVertical />
               </div>
             </Tooltip>
-            { isDropdownOpen &&
-              <Dropdown
-              options={dropdownOptions}
-              isOpen={isDropdownOpen}
-              toggleDropdown={() => setIsDropdownOpen(!isDropdownOpen)}
-            />
-            } */}
+             */}
             <Tooltip content="Agendas">
               <div
                 className="bg-[#444444] py-2.5 px-4 rounded-lg cursor-pointer text-white"
@@ -273,11 +268,12 @@ const CallControls = ({
                 <Tooltip content="Mic">
                   <TrackToggle source={Track.Source.Microphone} />
                 </Tooltip>
-                <Tooltip content="Video">
-                  {callType === "video" && (
+
+                {callType === "video" && (
+                  <Tooltip content="Video">
                     <TrackToggle source={Track.Source.Camera} />
-                  )}
-                </Tooltip>
+                  </Tooltip>
+                )}
               </>
             )}
           </>

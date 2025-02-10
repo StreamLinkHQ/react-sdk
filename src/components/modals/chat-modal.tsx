@@ -36,7 +36,8 @@ const ChatModal = ({ closeFunc, chatMessages, participants }: ChatModalProps) =>
         position="right"
         width="w-2/3 md:w-1/2 lg:w-1/4"
       >
-        <div>
+        <div className="">
+          <div className="overflow-y-scroll h-[520px] lg:h-[550px]">
           {chatMessages.map((chat, i) => {
             const participant = findParticipant(chat.from?.identity);
             
@@ -53,6 +54,8 @@ const ChatModal = ({ closeFunc, chatMessages, participants }: ChatModalProps) =>
               </div>
             );
           })}
+          </div>
+
 
           <div className="absolute bottom-2 border border-black rounded-full w-[82%] lg:w-[88%] p-2 flex flex-row items-center justify-between">
             <input

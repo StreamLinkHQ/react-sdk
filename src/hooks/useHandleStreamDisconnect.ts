@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from "react";
+import { io, Socket } from "socket.io-client";
 import { baseApi } from "../utils/index";
 
 export const useHandleStreamDisconnect = (
@@ -40,10 +41,14 @@ export const useHandleStreamDisconnect = (
     window.addEventListener("unload", handlePageLeave);
     window.addEventListener("load", handlePageLeave);
 
+    const socket: Socket = io(`${baseApi}`);
+    socket.on("userDisconnected", leaveStream);
+
     return () => {
       window.removeEventListener("beforeunload", handlePageLeave);
       window.removeEventListener("unload", handlePageLeave);
       window.removeEventListener("load", handlePageLeave);
+      socket.off("userDisconnected", leaveStream);
     };
   }, [leaveStream]);
 
