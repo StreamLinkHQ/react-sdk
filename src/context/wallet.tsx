@@ -14,7 +14,8 @@ export const WalletProviders = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const network = WalletAdapterNetwork.Devnet;
+  const network = WalletAdapterNetwork.Mainnet;
+  // const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   console.log("Using network:", network);
@@ -26,10 +27,14 @@ export const WalletProviders = ({
         title: "Streamlink",
         clientId: "3d4e3da1-1e46-4715-80c7-30de8b045a4d",
         theme: "dark",
+        // walletAdapterNetwork:
+        //   network === "devnet"
+        //     ? WalletAdapterNetwork.Devnet
+        //     : WalletAdapterNetwork.Mainnet,
         walletAdapterNetwork:
-          network === "devnet"
-            ? WalletAdapterNetwork.Devnet
-            : WalletAdapterNetwork.Mainnet,
+        network === "mainnet-beta"
+          ? WalletAdapterNetwork.Mainnet
+          : WalletAdapterNetwork.Devnet,
       }),
     ],
     [network]
